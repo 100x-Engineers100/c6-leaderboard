@@ -1,0 +1,70 @@
+import type { Student } from '@/lib/types'
+
+type Props = { student: Student; isTop3?: boolean }
+
+export function RankRow({ student, isTop3 = false }: Props) {
+  const { rank, name, points } = student
+
+  return (
+    <div
+      className="grid items-center gap-3 px-4 py-3 mb-[2px] transition-colors duration-100"
+      style={{
+        gridTemplateColumns: '44px 1fr auto',
+        background: isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)',
+        borderRadius: 4,
+        border: '1px solid',
+        borderColor: isTop3 ? 'rgba(249,104,70,0.20)' : 'rgba(255,255,255,0.09)',
+        borderLeft: isTop3 ? '2px solid rgba(249,104,70,0.60)' : '2px solid transparent',
+        cursor: 'default',
+      }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.background = isTop3 ? 'rgba(249,104,70,0.10)' : 'rgba(255,255,255,0.07)'
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.background = isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)'
+      }}
+    >
+      {/* Rank number */}
+      <span
+        style={{
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 13,
+          fontWeight: 700,
+          textAlign: 'center',
+          color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.50)',
+          letterSpacing: '0.5px',
+        }}
+      >
+        {String(rank).padStart(2, '0')}
+      </span>
+
+      {/* Name */}
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 500,
+          color: isTop3 ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.82)',
+          letterSpacing: '0.2px',
+        }}
+      >
+        {name}
+      </span>
+
+      {/* Points */}
+      <span
+        style={{
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 13,
+          fontWeight: 700,
+          fontVariantNumeric: 'tabular-nums',
+          color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.65)',
+          letterSpacing: '0.5px',
+        }}
+      >
+        {points.toLocaleString()}
+      </span>
+    </div>
+  )
+}

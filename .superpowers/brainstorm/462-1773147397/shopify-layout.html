@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify-style Layout Direction</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #070707;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   SPLIT LAYOUT OPTIONS
+   ========================================= */
+.intro {
+  padding: 20px 20px 10px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+}
+
+.layouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 12px;
+}
+
+.layout-card {
+  position: relative;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.25s;
+}
+.layout-card:hover { border-color: rgba(249,104,70,0.35); }
+.layout-card.selected { border-color: #F96846; }
+.selected-marker {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: #F96846;
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 2px 7px;
+  display: none;
+  z-index: 20;
+}
+.layout-card.selected .selected-marker { display: block; }
+
+
+/* =========================================
+   LAYOUT A: "Boring but not boring"
+   Shopify Winter 25 aesthetic
+   Full-bleed editorial, big type, minimal
+   ========================================= */
+.la {
+  background: #060606;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+.la-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.la-logo {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+.la-nav-links {
+  display: flex;
+  gap: 20px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.la-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.la-eyebrow {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: rgba(249,104,70,0.7);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.la-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  color: #F5F0E8;
+  margin-bottom: 14px;
+}
+.la-title span {
+  display: block;
+  color: #F96846;
+  font-style: italic;
+}
+.la-meta {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  gap: 18px;
+}
+.la-meta b { color: rgba(255,255,255,0.6); }
+/* subtle grid lines in background */
+.la-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.la-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(249,104,70,0.1);
+  border: 1px solid rgba(249,104,70,0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: rgba(249,104,70,0.8);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  width: fit-content;
+}
+.la-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #F96846;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform: scale(1); }
+  50% { opacity:0.4; transform: scale(0.6); }
+}
+
+/* Scroll indicator */
+.la-scroll {
+  position: absolute;
+  bottom: 16px; right: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.la-scroll-text {
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  transform: rotate(90deg);
+  transform-origin: right center;
+  margin-bottom: 8px;
+}
+.la-scroll-line {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(#F96846, transparent);
+}
+
+/* =========================================
+   LAYOUT B: Card-grid editorial (Shopify W26 feel)
+   More structured, content panels
+   ========================================= */
+.lb {
+  background: #050505;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+.lb-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.lb-wordmark {
+  font-size: 10px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.lb-tag {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(249,104,70,0.6);
+  border: 1px solid rgba(249,104,70,0.2);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.lb-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.lb-left {
+  background: #080808;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+}
+.lb-big-num {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 80px;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(249,104,70,0.12);
+  position: absolute;
+  top: 10px; right: -5px;
+  letter-spacing: -4px;
+}
+.lb-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: #F5F0E8;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 8px;
+}
+.lb-title em { color: #F96846; font-style: italic; }
+.lb-stats {
+  display: flex;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
+}
+.lb-stat {
+  display: flex;
+  flex-direction: column;
+}
+.lb-stat-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+}
+.lb-stat-label {
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+
+.lb-right {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+.lb-top-row {
+  background: #F96846;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.lb-rank-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(0,0,0,0.5); margin-bottom: 4px; }
+.lb-rank-name { font-size: 14px; font-weight: 700; color: #000; }
+.lb-rank-pts { font-size: 20px; font-weight: 900; color: rgba(0,0,0,0.7); font-family: 'Playfair Display', serif; }
+.lb-bottom-row {
+  background: #0D0D0D;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.lb-mini-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.lb-mini-rank { font-size: 9px; color: rgba(255,255,255,0.2); width: 16px; }
+.lb-mini-name { font-size: 10px; color: rgba(255,255,255,0.55); flex: 1; margin-left: 6px; }
+.lb-mini-pts { font-size: 10px; font-weight: 600; color: rgba(249,104,70,0.7); }
+
+/* =========================================
+   LABELS
+   ========================================= */
+.layout-meta {
+  padding: 10px 14px;
+  background: #0C0C0C;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.lm-name { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 2px; }
+.lm-desc { font-size: 10px; color: rgba(255,255,255,0.3); line-height: 1.5; }
+
+/* Bottom note */
+.note {
+  padding: 14px 16px 20px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  letter-spacing: 1px;
+  line-height: 1.8;
+}
+.note b { color: rgba(249,104,70,0.6); }
+</style>
+</head>
+<body>
+
+<div class="intro">Choose a layout direction — click to select</div>
+
+<div class="layouts">
+
+  <!-- LAYOUT A -->
+  <div class="layout-card" onclick="this.classList.toggle('selected')">
+    <div class="selected-marker">SELECTED</div>
+    <div class="la">
+      <div class="la-nav">
+        <div class="la-logo">100xEngineers</div>
+        <div class="la-nav-links">
+          <span>C6</span><span>Ranks</span><span>About</span>
+        </div>
+      </div>
+      <div class="la-hero">
+        <div class="la-grid"></div>
+        <div class="la-pill"><div class="la-dot"></div>Live Rankings</div>
+        <div class="la-eyebrow">Cohort 6 &mdash; 2025</div>
+        <div class="la-title">
+          Leader<span>board.</span>
+        </div>
+        <div class="la-meta">
+          <span><b>142</b> members</span>
+          <span><b>3</b> tracks</span>
+          <span><b>Live</b> scores</span>
+        </div>
+        <div class="la-scroll">
+          <div class="la-scroll-text">Scroll</div>
+          <div class="la-scroll-line"></div>
+        </div>
+      </div>
+    </div>
+    <div class="layout-meta">
+      <div class="lm-name">A — Full-bleed Editorial Hero</div>
+      <div class="lm-desc">Shopify W25 feel. Big serif headline, minimal chrome, grid texture, slow cinematic scroll reveals below.</div>
+    </div>
+  </div>
+
+  <!-- LAYOUT B -->
+  <div class="layout-card" onclick="this.classList.toggle('selected')">
+    <div class="selected-marker">SELECTED</div>
+    <div class="lb">
+      <div class="lb-header">
+        <div class="lb-wordmark">100xEngineers</div>
+        <div class="lb-tag">C6 Live</div>
+      </div>
+      <div class="lb-main">
+        <div class="lb-left">
+          <div class="lb-big-num">#6</div>
+          <div class="lb-title">Cohort<br><em>Rankings</em></div>
+          <div class="lb-stats">
+            <div class="lb-stat">
+              <div class="lb-stat-val">142</div>
+              <div class="lb-stat-label">Members</div>
+            </div>
+            <div class="lb-stat">
+              <div class="lb-stat-val">9.8k</div>
+              <div class="lb-stat-label">Top Score</div>
+            </div>
+          </div>
+        </div>
+        <div class="lb-right">
+          <div class="lb-top-row">
+            <div class="lb-rank-label">#1 This Week</div>
+            <div class="lb-rank-name">Arjun Kapoor</div>
+            <div class="lb-rank-pts">9,842</div>
+          </div>
+          <div class="lb-bottom-row">
+            <div class="lb-mini-row">
+              <div class="lb-mini-rank">2</div>
+              <div class="lb-mini-name">Sneha Rathi</div>
+              <div class="lb-mini-pts">8,110</div>
+            </div>
+            <div class="lb-mini-row">
+              <div class="lb-mini-rank">3</div>
+              <div class="lb-mini-name">Vikram Mehta</div>
+              <div class="lb-mini-pts">7,390</div>
+            </div>
+            <div class="lb-mini-row">
+              <div class="lb-mini-rank">4</div>
+              <div class="lb-mini-name">Priya Joshi</div>
+              <div class="lb-mini-pts">6,050</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="layout-meta">
+      <div class="lm-name">B — Split Panel Dashboard</div>
+      <div class="lm-desc">Shopify W26 feel. Editorial grid, orange accent panel for #1, structured content panels. Information-dense but clean.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  Both use: <b>Three.js + R3F</b> (abstract particle BG) + <b>GSAP ScrollTrigger</b> (cinematic reveals) + <b>Lenis</b> (smooth scroll) + <b>Rive</b> (badge animations)<br>
+  No 3D models. No Theatre.js. That's the honest 80/20.
+</div>
+
+</body>
+</html>

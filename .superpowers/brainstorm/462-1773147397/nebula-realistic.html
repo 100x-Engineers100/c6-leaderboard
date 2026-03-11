@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nebula Direction — Realistic</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .page-title {
+    text-align: center;
+    padding: 24px 20px 8px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+  .page-subtitle {
+    text-align: center;
+    padding: 0 20px 20px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    padding: 0 2px 2px;
+  }
+  .option {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .option:hover { border-color: rgba(249,104,70,0.4); }
+  .option.selected { border-color: #F96846; }
+  .option-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    padding: 40px 18px 14px;
+    z-index: 10;
+  }
+  .option-letter {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #F96846;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .option-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 3px;
+    letter-spacing: 1px;
+  }
+  .option-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+  .selected-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: #F96846;
+    color: #000;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    display: none;
+    z-index: 10;
+  }
+  .option.selected .selected-badge { display: block; }
+  svg.hidden { position: absolute; width: 0; height: 0; }
+
+  /* -------------------------------------------------- */
+  /* OPTION A: Pillars of Creation — Eagle Nebula style */
+  /* -------------------------------------------------- */
+  .preview-a {
+    width: 100%; height: 300px;
+    background: #000205;
+    position: relative;
+  }
+  .na-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 120% 80% at 70% 60%, rgba(249,104,70,0.22) 0%, rgba(180,60,10,0.12) 30%, transparent 65%),
+      radial-gradient(ellipse 60% 90% at 30% 80%, rgba(249,104,70,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 40% at 80% 15%, rgba(100,150,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 50% at 50% 50%, rgba(20,10,40,0.6) 0%, transparent 70%);
+    filter: url(#nebula-noise);
+  }
+  .na-pillar1 {
+    position: absolute;
+    left: 25%; top: 10%; width: 12%; height: 75%;
+    background: linear-gradient(180deg, transparent 0%, rgba(249,104,70,0.35) 20%, rgba(180,70,20,0.5) 60%, rgba(100,40,10,0.4) 100%);
+    filter: url(#pillar-blur);
+    transform: rotate(-3deg);
+    border-radius: 40% 30% 20% 40%;
+  }
+  .na-pillar2 {
+    position: absolute;
+    left: 40%; top: 25%; width: 9%; height: 60%;
+    background: linear-gradient(180deg, transparent 0%, rgba(249,104,70,0.28) 20%, rgba(160,60,15,0.45) 70%, transparent 100%);
+    filter: url(#pillar-blur);
+    transform: rotate(2deg);
+    border-radius: 35% 40% 25% 30%;
+  }
+  .na-pillar3 {
+    position: absolute;
+    left: 53%; top: 35%; width: 7%; height: 50%;
+    background: linear-gradient(180deg, transparent 0%, rgba(220,90,30,0.25) 30%, rgba(140,50,10,0.4) 80%, transparent 100%);
+    filter: url(#pillar-blur);
+    transform: rotate(-1deg);
+    border-radius: 30% 45% 20% 35%;
+  }
+  .na-stars { position: absolute; inset: 0; }
+  .na-glow {
+    position: absolute;
+    top: -20%; left: 60%; width: 50%; height: 50%;
+    background: radial-gradient(ellipse, rgba(200,180,255,0.12) 0%, rgba(100,80,200,0.06) 40%, transparent 70%);
+  }
+  .na-horizon {
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 40%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  }
+
+  /* -------------------------------------------------- */
+  /* OPTION B: Helix / Eye of God — teal center orange  */
+  /* -------------------------------------------------- */
+  .preview-b {
+    width: 100%; height: 300px;
+    background: #000308;
+    position: relative;
+  }
+  .nb-outer {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, transparent 30%, rgba(249,104,70,0.30) 50%, rgba(200,80,20,0.20) 65%, transparent 80%);
+    filter: url(#nebula-noise);
+  }
+  .nb-mid {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(60,180,220,0.25) 0%, rgba(30,100,160,0.18) 40%, transparent 70%);
+    filter: url(#nebula-noise);
+  }
+  .nb-core {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(220,240,255,0.9) 0%, rgba(150,200,255,0.5) 40%, transparent 70%);
+    box-shadow: 0 0 30px 10px rgba(180,220,255,0.3), 0 0 60px 20px rgba(100,160,255,0.15);
+  }
+  .nb-ring {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(249,104,70,0.12);
+    box-shadow: 0 0 40px 8px rgba(249,104,70,0.08), inset 0 0 40px 8px rgba(249,104,70,0.05);
+  }
+
+  /* -------------------------------------------------- */
+  /* OPTION C: Crab Nebula — filament style, deep red   */
+  /* -------------------------------------------------- */
+  .preview-c {
+    width: 100%; height: 300px;
+    background: #020100;
+    position: relative;
+  }
+  .nc-base {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 70% at 50% 50%, rgba(249,104,70,0.18) 0%, rgba(150,40,10,0.12) 40%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 30% 40%, rgba(200,60,20,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 30% 40% at 70% 60%, rgba(180,80,30,0.10) 0%, transparent 50%);
+    filter: url(#nebula-noise);
+  }
+  .nc-filaments {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(
+        25deg,
+        transparent 0%,
+        transparent 8%,
+        rgba(249,104,70,0.04) 8.5%,
+        transparent 9%
+      ),
+      repeating-linear-gradient(
+        -40deg,
+        transparent 0%,
+        transparent 12%,
+        rgba(200,80,30,0.03) 12.5%,
+        transparent 13%
+      );
+  }
+  .nc-center {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,220,150,0.8) 0%, rgba(255,150,50,0.4) 40%, transparent 70%);
+    box-shadow: 0 0 40px 15px rgba(249,104,70,0.3), 0 0 80px 30px rgba(249,104,70,0.1);
+  }
+  .nc-inner-ring {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 1px solid rgba(249,104,70,0.15);
+    box-shadow: 0 0 20px rgba(249,104,70,0.1);
+  }
+
+  /* -------------------------------------------------- */
+  /* OPTION D: Milky Way Edge — horizon, volumetric     */
+  /* -------------------------------------------------- */
+  .preview-d {
+    width: 100%; height: 300px;
+    background: #000004;
+    position: relative;
+  }
+  .nd-band {
+    position: absolute;
+    top: 30%; left: -10%; right: -10%;
+    height: 45%;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 50%, rgba(249,104,70,0.20) 0%, rgba(200,80,20,0.12) 30%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 25% 60%, rgba(150,100,200,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 30% 40% at 75% 40%, rgba(80,120,200,0.06) 0%, transparent 50%);
+    filter: url(#nebula-noise) blur(2px);
+    transform: rotate(-8deg);
+  }
+  .nd-band2 {
+    position: absolute;
+    top: 38%; left: -10%; right: -10%;
+    height: 25%;
+    background: radial-gradient(ellipse 100% 80% at 50% 50%, rgba(249,104,70,0.12) 0%, transparent 60%);
+    filter: blur(8px);
+    transform: rotate(-8deg);
+  }
+  .nd-dark-lane {
+    position: absolute;
+    top: 48%; left: -5%; right: -5%;
+    height: 8%;
+    background: rgba(0,0,0,0.7);
+    filter: blur(4px);
+    transform: rotate(-8deg);
+  }
+  .nd-core-glow {
+    position: absolute;
+    top: 50%; left: 45%; transform: translate(-50%, -50%);
+    width: 200px; height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,200,100,0.25) 0%, rgba(249,104,70,0.15) 30%, transparent 70%);
+    filter: blur(10px);
+  }
+
+  /* Star layer (shared) */
+  .stars-layer {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(0.8px 0.8px at 8% 12%, rgba(255,255,255,0.9) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 22% 5%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1.2px 1.2px at 35% 18%, rgba(255,240,200,0.95) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 48% 8%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 62% 22%, rgba(255,255,255,0.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 76% 10%, rgba(255,255,255,0.9) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 88% 16%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 5% 35%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 18% 42%, rgba(255,230,180,0.8) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 55% 38%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 70% 45%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 38%, rgba(255,255,255,0.8) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 12% 62%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 38% 68%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 58% 72%, rgba(200,220,255,0.9) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 82% 65%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(0.8px 0.8px at 95% 75%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(2px 2px at 44% 55%, rgba(255,220,150,1) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 72% 28%, rgba(200,230,255,0.9) 0%, transparent 100%);
+  }
+
+  .select-hint {
+    text-align: center;
+    padding: 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+</style>
+
+<!-- SVG Filters for realistic nebula texture -->
+<svg class="hidden">
+  <defs>
+    <filter id="nebula-noise" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015 0.025" numOctaves="4" seed="8" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
+      <feGaussianBlur in="blended" stdDeviation="1.5"/>
+    </filter>
+    <filter id="pillar-blur" x="-20%" y="-5%" width="140%" height="110%">
+      <feTurbulence type="turbulence" baseFrequency="0.04 0.01" numOctaves="3" seed="12" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="page-title">Choose Your Nebula Direction</div>
+<div class="page-subtitle">Real nebula references translated into UI aesthetics — click to select</div>
+
+<div class="grid">
+
+  <!-- OPTION A -->
+  <div class="option" data-choice="a" onclick="this.classList.toggle('selected')">
+    <div class="preview-a">
+      <div class="na-bg"></div>
+      <div class="na-glow"></div>
+      <div class="na-pillar1"></div>
+      <div class="na-pillar2"></div>
+      <div class="na-pillar3"></div>
+      <div class="stars-layer"></div>
+      <div class="na-horizon"></div>
+    </div>
+    <div class="selected-badge">SELECTED</div>
+    <div class="option-label">
+      <div class="option-letter">Option A</div>
+      <div class="option-name">Pillars of Creation</div>
+      <div class="option-desc">Eagle Nebula ref. Orange gas columns rising from darkness. Structural, dramatic, vertical energy.</div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="option" data-choice="b" onclick="this.classList.toggle('selected')">
+    <div class="preview-b">
+      <div class="stars-layer"></div>
+      <div class="nb-outer"></div>
+      <div class="nb-mid"></div>
+      <div class="nb-ring"></div>
+      <div class="nb-core"></div>
+    </div>
+    <div class="selected-badge">SELECTED</div>
+    <div class="option-label">
+      <div class="option-letter">Option B</div>
+      <div class="option-name">Eye of God</div>
+      <div class="option-desc">Helix Nebula ref. Teal-blue center, orange outer ring, glowing stellar core. Focused, radial, cosmic eye.</div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="option" data-choice="c" onclick="this.classList.toggle('selected')">
+    <div class="preview-c">
+      <div class="nc-base"></div>
+      <div class="nc-filaments"></div>
+      <div class="stars-layer"></div>
+      <div class="nc-inner-ring"></div>
+      <div class="nc-center"></div>
+    </div>
+    <div class="selected-badge">SELECTED</div>
+    <div class="option-label">
+      <div class="option-letter">Option C</div>
+      <div class="option-name">Crab Nebula</div>
+      <div class="option-desc">Supernova remnant. Orange filament web expanding from white-hot center. Explosive, radiant, complex texture.</div>
+    </div>
+  </div>
+
+  <!-- OPTION D -->
+  <div class="option" data-choice="d" onclick="this.classList.toggle('selected')">
+    <div class="preview-d">
+      <div class="nd-band"></div>
+      <div class="nd-band2"></div>
+      <div class="nd-core-glow"></div>
+      <div class="nd-dark-lane"></div>
+      <div class="stars-layer"></div>
+    </div>
+    <div class="selected-badge">SELECTED</div>
+    <div class="option-label">
+      <div class="option-letter">Option D</div>
+      <div class="option-name">Milky Way Band</div>
+      <div class="option-desc">Galactic core view. Diagonal orange-amber band with dark dust lane cutting through. Editorial, sweeping, cinematic.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="select-hint">Click options to select — you can pick multiple or mix</div>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nebula v3 — Scientifically Accurate</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #03020A;
+  font-family: 'Courier New', monospace;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* =============================================
+   HERO PREVIEW — Full page simulation
+   ============================================= */
+.hero-preview {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  background: #03020A;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Star field — hard points, varying sizes */
+.stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(0.6px 0.6px at 4%  8%,  rgba(245,240,255,0.95) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 11% 3%,  rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(1.0px 1.0px at 19% 14%, rgba(255,230,180,1.00) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 27% 6%,  rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 33% 19%, rgba(245,245,255,0.80) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 42% 4%,  rgba(255,255,255,0.90) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 51% 11%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1.2px 1.2px at 58% 7%,  rgba(200,230,255,1.00) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 67% 16%, rgba(255,255,255,0.75) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 74% 5%,  rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 82% 12%, rgba(255,240,200,0.90) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 91% 9%,  rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 96% 18%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 6%  28%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 15% 35%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(1.0px 1.0px at 23% 42%, rgba(255,220,150,0.95) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 38% 30%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 47% 38%, rgba(245,250,255,0.80) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 63% 25%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 71% 33%, rgba(255,200,120,1.00) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 85% 28%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 93% 36%, rgba(255,255,255,0.75) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 8%  55%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 18% 62%, rgba(255,255,255,0.50) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 29% 70%, rgba(245,240,255,0.80) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 44% 65%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 56% 72%, rgba(200,220,255,0.90) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 77% 60%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 88% 68%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 97% 55%, rgba(255,250,240,0.80) 0%, transparent 100%),
+    radial-gradient(2.0px 2.0px at 34% 48%, rgba(255,230,160,1.00) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 52% 82%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 64% 88%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1.0px 1.0px at 79% 82%, rgba(255,240,200,0.85) 0%, transparent 100%);
+}
+
+/* NEBULA LAYERS — mix-blend-mode: screen = additive light = photographic accuracy */
+.nebula-layer {
+  position: absolute; inset: 0;
+  mix-blend-mode: screen;
+}
+
+/* Rust/sulfur emission — main orange cloud (left-center) */
+.n-rust {
+  background:
+    radial-gradient(ellipse 55% 40% at 28% 55%, rgba(196, 75, 27, 0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 55% at 18% 65%, rgba(180, 55, 15, 0.40) 0%, transparent 60%),
+    radial-gradient(ellipse 25% 20% at 35% 42%, rgba(230, 100, 30, 0.35) 0%, transparent 55%);
+  filter: url(#neb-fuzz);
+}
+
+/* Teal/oxygen emission — secondary cloud (right-center) */
+.n-teal {
+  background:
+    radial-gradient(ellipse 45% 60% at 72% 45%, rgba(14, 139, 122, 0.50) 0%, transparent 65%),
+    radial-gradient(ellipse 30% 35% at 80% 60%, rgba(10, 110, 100, 0.35) 0%, transparent 55%);
+  filter: url(#neb-fuzz);
+}
+
+/* Amber hot-core — where clouds collide (center) */
+.n-amber {
+  background:
+    radial-gradient(ellipse 20% 25% at 50% 50%, rgba(232, 160, 32, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 10% 12% at 48% 48%, rgba(255, 200, 80, 0.35) 0%, transparent 50%);
+  filter: blur(6px);
+}
+
+/* Subtle depth layer — crimson under-glow */
+.n-depth {
+  background:
+    radial-gradient(ellipse 80% 50% at 40% 70%, rgba(100, 20, 8, 0.30) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 30% at 65% 35%, rgba(8, 60, 55, 0.20) 0%, transparent 60%);
+  filter: url(#neb-fuzz-large);
+}
+
+/* Vignette */
+.vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 100% 80% at 50% 50%, transparent 40%, rgba(3,2,10,0.7) 100%);
+  pointer-events: none;
+}
+
+/* Horizon fade bottom */
+.horizon {
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 35%;
+  background: linear-gradient(transparent, #03020A);
+  pointer-events: none;
+}
+
+/* UI OVERLAY — simulating hero content */
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+}
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: rgba(249,104,70,0.8);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #FAFEFF 0%, rgba(240,220,180,0.9) 50%, rgba(249,104,70,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  font-family: Georgia, serif;
+}
+.hero-sub {
+  font-size: 13px;
+  color: rgba(232,224,213,0.55);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   LEADERBOARD ROW PREVIEW
+   ============================================= */
+.section-title {
+  padding: 24px 20px 12px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+
+.board-preview {
+  padding: 0 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.board-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.2s;
+}
+
+.board-row:hover { background: rgba(255,255,255,0.06); }
+
+/* Rank 1 — amber (hottest star) */
+.rank-1 {
+  background: rgba(232,160,32,0.06);
+  border-color: rgba(232,160,32,0.25);
+  box-shadow: 0 0 20px rgba(232,160,32,0.08), inset 0 1px 0 rgba(232,160,32,0.15);
+}
+/* Rank 2 — teal (ionized oxygen) */
+.rank-2 {
+  background: rgba(14,139,122,0.05);
+  border-color: rgba(14,139,122,0.20);
+  box-shadow: 0 0 15px rgba(14,139,122,0.06), inset 0 1px 0 rgba(14,139,122,0.12);
+}
+/* Rank 3 — rust (sulfur emission) */
+.rank-3 {
+  background: rgba(196,75,27,0.05);
+  border-color: rgba(196,75,27,0.20);
+  box-shadow: 0 0 15px rgba(196,75,27,0.06), inset 0 1px 0 rgba(196,75,27,0.10);
+}
+
+.rank-num {
+  width: 28px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.rank-1 .rank-num { color: #E8A020; text-shadow: 0 0 12px rgba(232,160,32,0.8); }
+.rank-2 .rank-num { color: #0E8B7A; text-shadow: 0 0 12px rgba(14,139,122,0.8); }
+.rank-3 .rank-num { color: #C44B1B; text-shadow: 0 0 12px rgba(196,75,27,0.8); }
+.rank-num.normal { color: rgba(255,255,255,0.25); }
+
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+.rank-1 .avatar { border-color: rgba(232,160,32,0.4); }
+.rank-2 .avatar { border-color: rgba(14,139,122,0.4); }
+.rank-3 .avatar { border-color: rgba(196,75,27,0.4); }
+
+.name { flex: 1; font-size: 13px; color: rgba(232,224,213,0.85); letter-spacing: 0.5px; }
+.pts {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.rank-1 .pts { color: #E8A020; }
+.rank-2 .pts { color: #0E8B7A; }
+.rank-3 .pts { color: #C44B1B; }
+.pts.normal { color: rgba(255,255,255,0.4); }
+
+.bar-wrap { width: 80px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+.bar { height: 100%; border-radius: 2px; }
+.rank-1 .bar { background: linear-gradient(90deg, #C44B1B, #E8A020); width: 95%; }
+.rank-2 .bar { background: linear-gradient(90deg, #0E8B7A, #12C0A8); width: 82%; }
+.rank-3 .bar { background: linear-gradient(90deg, #8B2A0F, #C44B1B); width: 74%; }
+.normal-bar .bar { background: rgba(255,255,255,0.15); }
+.r4 .bar { width: 61%; }
+.r5 .bar { width: 55%; }
+
+.caption {
+  padding: 12px 16px 20px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 2px;
+  text-align: center;
+}
+</style>
+
+<!-- SVG Noise Filters -->
+<svg style="position:absolute;width:0;height:0">
+  <defs>
+    <filter id="neb-fuzz" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="5" seed="3" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="28" xChannelSelector="R" yChannelSelector="G" result="warped"/>
+      <feGaussianBlur in="warped" stdDeviation="14"/>
+    </filter>
+    <filter id="neb-fuzz-large" x="-40%" y="-40%" width="180%" height="180%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.008 0.010" numOctaves="4" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" xChannelSelector="R" yChannelSelector="G" result="warped"/>
+      <feGaussianBlur in="warped" stdDeviation="22"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero-preview">
+  <div class="stars"></div>
+  <div class="nebula-layer n-depth"></div>
+  <div class="nebula-layer n-rust"></div>
+  <div class="nebula-layer n-teal"></div>
+  <div class="nebula-layer n-amber"></div>
+  <div class="vignette"></div>
+  <div class="horizon"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">100xEngineers &mdash; Cohort 6</div>
+    <div class="hero-title">Leaderboard</div>
+    <div class="hero-sub">Points &middot; Ranks &middot; Glory</div>
+  </div>
+</div>
+
+<!-- ==================== LEADERBOARD ROWS ==================== -->
+<div class="section-title">Leaderboard Table — Rank Colors (scientifically mapped to real nebula emission)</div>
+<div class="board-preview">
+  <div class="board-row rank-1">
+    <span class="rank-num">1</span>
+    <div class="avatar">AK</div>
+    <span class="name">Arjun Kapoor</span>
+    <div class="bar-wrap"><div class="bar"></div></div>
+    <span class="pts">9,842 pts</span>
+  </div>
+  <div class="board-row rank-2">
+    <span class="rank-num">2</span>
+    <div class="avatar">SR</div>
+    <span class="name">Sneha Rathi</span>
+    <div class="bar-wrap"><div class="bar"></div></div>
+    <span class="pts">8,110 pts</span>
+  </div>
+  <div class="board-row rank-3">
+    <span class="rank-num">3</span>
+    <div class="avatar">VM</div>
+    <span class="name">Vikram Mehta</span>
+    <div class="bar-wrap"><div class="bar"></div></div>
+    <span class="pts">7,390 pts</span>
+  </div>
+  <div class="board-row normal-bar r4">
+    <span class="rank-num normal">4</span>
+    <div class="avatar">PJ</div>
+    <span class="name">Priya Joshi</span>
+    <div class="bar-wrap"><div class="bar"></div></div>
+    <span class="pts normal">6,050 pts</span>
+  </div>
+  <div class="board-row normal-bar r5">
+    <span class="rank-num normal">5</span>
+    <div class="avatar">RD</div>
+    <span class="name">Rahul Desai</span>
+    <div class="bar-wrap"><div class="bar"></div></div>
+    <span class="pts normal">5,420 pts</span>
+  </div>
+</div>
+
+<div class="caption">
+  Rank 1 = Amber/Gold (hottest stellar core) &nbsp;&middot;&nbsp;
+  Rank 2 = Teal (ionized oxygen) &nbsp;&middot;&nbsp;
+  Rank 3 = Rust (sulfur emission) &nbsp;&middot;&nbsp;
+  Scientifically accurate to Hubble SHO palette
+</div>
