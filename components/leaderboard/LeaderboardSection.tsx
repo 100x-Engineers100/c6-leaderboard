@@ -80,7 +80,7 @@ export function LeaderboardSection() {
           color: 'rgba(144, 137, 137, 0.77)',
           whiteSpace: 'nowrap',
         }}>
-          Cohort 7 · 280 Builders
+          Cohort 7 · 200 Builders
         </span>
       </div>
 
