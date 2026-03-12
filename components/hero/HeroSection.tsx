@@ -34,8 +34,8 @@ export function HeroSection() {
           transform: 'rotateX(65deg)', // Adjusted angle for better convergence
           transformOrigin: 'bottom center',
           backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.15) 1.5px, transparent 2px),
-            linear-gradient(to bottom, rgba(255,255,255,0.15) 1.5px, transparent 2px)
+            linear-gradient(to right, rgba(255, 255, 255, 0.62) 1.5px, transparent 2px),
+            linear-gradient(to bottom, rgba(255,255,255,0.62) 1.5px, transparent 2px)
           `,
           backgroundSize: '90px 90px',
           opacity: 1,
