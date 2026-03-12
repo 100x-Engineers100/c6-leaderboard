@@ -27,7 +27,7 @@ export const STUDENTS: Student[] = generateStudents()
 // Override top 3 with demo avatars
 const top3Raw = STUDENTS.slice(0, 3)
 export const TOP_3: Student[] = [
-  { ...top3Raw[0], avatar: '/avatar_demo.jpg' },
-  { ...top3Raw[1], avatar: '/avatar_rank2.jpg' },
-  { ...top3Raw[2], avatar: '/avatar_rank3.jpg' },
+  { ...top3Raw[0], avatar: '/avatar_demo.jpeg' },
+  { ...top3Raw[1], avatar: '/avatar_rank2.jpeg' },
+  { ...top3Raw[2], avatar: '/avatar_rank3.jpeg' },
 ]

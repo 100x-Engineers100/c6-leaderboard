@@ -1,0 +1,56 @@
+﻿
+Top 3 Podium
+Element
+	Current
+	Suggested
+	Points label
+	9800 pts
+	9,800 XP
+	No name tag
+	(none)
+	Small tag under name: 🔥 Leading the cohort (only for rank 1)
+	________________
+
+
+Rankings Table
+Element
+	Current
+	Suggested
+	Section title
+	Rankings
+	Full Rankings
+	Cohort label
+	C6 — 200
+	Cohort 6 · 200 Builders
+	Column: Rank
+	Rank
+	#
+	Column: Name
+	Name
+	Builder
+	Column: Points
+	Points
+	Total XP
+	New column
+	(none)
+	Attendance
+	New column
+	(none)
+	Projects
+	
+
+	
+
+	
+
+	New column
+	(none)
+	#0to100x
+	________________
+
+
+Pagination
+Current
+	Suggested
+	1 2 … 10
+	Showing 1–20 of 200 builders

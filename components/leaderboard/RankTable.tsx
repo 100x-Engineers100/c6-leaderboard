@@ -50,20 +50,24 @@ export function RankTable() {
       {/* Column headers */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '44px 1fr auto',
+        gridTemplateColumns: '44px 1fr 80px 80px 80px 80px',
         gap: 12,
         padding: '0 16px 10px',
         marginBottom: 4,
         borderBottom: '1px solid rgba(255,255,255,0.05)',
         fontFamily: 'JetBrains Mono, monospace',
-        fontSize: 9,
-        letterSpacing: '3px',
+        fontSize: 12,
+        fontWeight: 2000,
+        letterSpacing: '1px',
         textTransform: 'uppercase',
         color: 'var(--color-text-muted)',
       }}>
-        <span>Rank</span>
-        <span>Name</span>
-        <span>Points</span>
+        <span>#</span>
+        <span>Builder</span>
+        <span style={{ textAlign: 'right' }}>Attendance</span>
+        <span style={{ textAlign: 'right' }}>Projects</span>
+        <span style={{ textAlign: 'right' }}>#0to100x</span>
+        <span style={{ textAlign: 'right' }}>Total XP</span>
       </div>
 
       {/* Rows — key forces remount on page change so GSAP targets are fresh */}
@@ -78,6 +82,7 @@ export function RankTable() {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
+        totalStudents={STUDENTS.length}
         onPageChange={handlePageChange}
       />
     </div>

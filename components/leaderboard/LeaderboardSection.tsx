@@ -61,24 +61,26 @@ export function LeaderboardSection() {
       }}>
         <span style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 9,
+          fontSize: 14,
+          fontWeight: 1500,
           letterSpacing: '4px',
           textTransform: 'uppercase',
           color: 'rgba(249,104,70,0.50)',
           whiteSpace: 'nowrap',
         }}>
-          Rankings
+          Full Rankings
         </span>
         <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
         <span style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 9,
+          fontSize: 14,
+          fontWeight: 1200,
           letterSpacing: '3px',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.12)',
+          color: 'rgba(144, 137, 137, 0.77)',
           whiteSpace: 'nowrap',
         }}>
-          C6 — 200
+          Cohort 7 · 280 Builders
         </span>
       </div>
 

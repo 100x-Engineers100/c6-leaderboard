@@ -9,7 +9,7 @@ export function RankRow({ student, isTop3 = false }: Props) {
     <div
       className="grid items-center gap-3 px-4 py-3 mb-[2px] transition-colors duration-100"
       style={{
-        gridTemplateColumns: '44px 1fr auto',
+        gridTemplateColumns: '44px 1fr 80px 80px 80px 80px',
         background: isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)',
         borderRadius: 4,
         border: '1px solid',
@@ -26,24 +26,37 @@ export function RankRow({ student, isTop3 = false }: Props) {
         el.style.background = isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)'
       }}
     >
-      {/* Rank number */}
-      <span
-        style={{
-          fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 13,
-          fontWeight: 700,
-          textAlign: 'center',
-          color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.50)',
-          letterSpacing: '0.5px',
-        }}
-      >
-        {String(rank).padStart(2, '0')}
-      </span>
+      {/* Rank number or Medal */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        {isTop3 ? (
+          <img
+            src={`/rank${rank}.png`}
+            alt={`Rank ${rank}`}
+            style={{ width: 28, height: 'auto' }}
+          />
+        ) : (
+          <span
+            style={{
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'rgba(255,255,255,0.50)',
+              letterSpacing: '0.5px',
+            }}
+          >
+            {String(rank).padStart(2, '0')}
+          </span>
+        )}
+      </div>
 
       {/* Name */}
       <span
         style={{
-          fontSize: 13,
+          fontSize: 16,
           fontWeight: 500,
           color: isTop3 ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.82)',
           letterSpacing: '0.2px',
@@ -52,7 +65,22 @@ export function RankRow({ student, isTop3 = false }: Props) {
         {name}
       </span>
 
-      {/* Points */}
+      {/* Attendance — v1 placeholder */}
+      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 16, fontWeight: 1200, color: 'rgba(255,255,255,0.25)', textAlign: 'right' }}>
+        —
+      </span>
+
+      {/* Projects — v1 placeholder */}
+      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 16, fontWeight: 1200, color: 'rgba(255,255,255,0.25)', textAlign: 'right' }}>
+        —
+      </span>
+
+      {/* #0to100x — v1 placeholder */}
+      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 16, fontWeight: 1200, color: 'rgba(255,255,255,0.25)', textAlign: 'right' }}>
+        —
+      </span>
+
+      {/* Total XP */}
       <span
         style={{
           fontFamily: 'JetBrains Mono, monospace',
@@ -61,6 +89,7 @@ export function RankRow({ student, isTop3 = false }: Props) {
           fontVariantNumeric: 'tabular-nums',
           color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.65)',
           letterSpacing: '0.5px',
+          textAlign: 'right',
         }}
       >
         {points.toLocaleString()}

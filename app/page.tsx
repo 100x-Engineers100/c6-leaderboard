@@ -18,18 +18,6 @@ export default function Page() {
         zIndex: -1,
       }} />
 
-      {/* Pattern overlay — fixed, full page, very high transparency */}
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundImage: 'url(/back_pattern.png)',
-        backgroundRepeat: 'repeat',
-        backgroundSize: 'auto',
-        backgroundPosition: 'center -150px',
-        opacity: 0.5,
-        zIndex: -1,
-        pointerEvents: 'none',
-      }} />
 
       {/* Bottom black gradient — fixed over bg pattern, covers hero + leaderboard */}
       <div style={{
@@ -49,24 +37,7 @@ export default function Page() {
 
       <ConfettiCannons />
 
-      {/* Brand text — replaces navbar, sits directly on background */}
-      <div style={{
-        position: 'fixed',
-        top: 20,
-        left: 32,
-        zIndex: 50,
-        fontFamily: 'Space Grotesk, sans-serif',
-        fontSize: 13,
-        fontWeight: 700,
-        letterSpacing: '4px',
-        textTransform: 'uppercase',
-        color: '#F96846',
-        textShadow: '0 0 18px rgba(249,104,70,0.55)',
-      }}>
-        100xEngineers
-      </div>
-
-      <HeroSection />
+<HeroSection />
       <LeaderboardSection />
     </main>
   )

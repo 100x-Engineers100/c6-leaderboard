@@ -1,10 +1,14 @@
 type Props = {
   currentPage: number
   totalPages: number
+  totalStudents: number
   onPageChange: (page: number) => void
 }
 
-export function Pagination({ currentPage, totalPages, onPageChange }: Props) {
+export function Pagination({ currentPage, totalPages, totalStudents, onPageChange }: Props) {
+  const pageSize = 20
+  const from = (currentPage - 1) * pageSize + 1
+  const to = Math.min(currentPage * pageSize, totalStudents)
   const getPages = (): (number | '...')[] => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
     const pages: (number | '...')[] = [1]
@@ -20,12 +24,22 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Props) {
   return (
     <div style={{
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4,
+      gap: 12,
       paddingTop: 32,
       paddingBottom: 48,
     }}>
+      <span style={{
+        fontFamily: 'JetBrains Mono, monospace',
+        fontSize: 10,
+        letterSpacing: '2px',
+        color: 'rgba(255,255,255,0.25)',
+        textTransform: 'uppercase',
+      }}>
+        Showing {from}–{to} of {totalStudents} builders
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       {getPages().map((page, i) =>
         page === '...' ? (
           <span
@@ -75,6 +89,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Props) {
           </button>
         )
       )}
+      </div>
     </div>
   )
 }
