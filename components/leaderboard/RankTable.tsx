@@ -1,16 +1,21 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { STUDENTS } from '@/lib/dummy-data'
+import type { Student } from '@/lib/types'
 import { PAGE_SIZE } from '@/lib/constants'
 import { RankRow } from './RankRow'
 import { Pagination } from './Pagination'
 
-export function RankTable() {
+type Props = {
+  students: Student[]
+  loading:  boolean
+}
+
+export function RankTable({ students, loading }: Props) {
   const [currentPage, setCurrentPage] = useState(1)
   const listRef = useRef<HTMLDivElement>(null)
-  const totalPages = Math.ceil(STUDENTS.length / PAGE_SIZE)
-  const pageStudents = STUDENTS.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const totalPages = Math.ceil(students.length / PAGE_SIZE)
+  const pageStudents = students.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   // Initial stagger — fires once after TV drop completes
   useEffect(() => {
@@ -35,7 +40,7 @@ export function RankTable() {
     })
   }
 
-  // Re-stagger on page change (key remount gives fresh DOM nodes)
+  // Re-stagger on page change
   useEffect(() => {
     if (!listRef.current) return
     const rows = listRef.current.querySelectorAll('[data-row]')
@@ -44,6 +49,11 @@ export function RankTable() {
       { y: 0, opacity: 1, duration: 0.22, stagger: 0.018, ease: 'power2.out' }
     )
   }, [currentPage])
+
+  // Reset to page 1 when new data loads
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [students])
 
   return (
     <div>
@@ -70,21 +80,39 @@ export function RankTable() {
         <span style={{ textAlign: 'right' }}>Total XP</span>
       </div>
 
-      {/* Rows — key forces remount on page change so GSAP targets are fresh */}
-      <div ref={listRef} key={currentPage}>
-        {pageStudents.map(student => (
-          <div key={student.id} data-row="">
-            <RankRow student={student} isTop3={student.rank <= 3} />
-          </div>
-        ))}
-      </div>
+      {/* Loading state */}
+      {loading && (
+        <div style={{
+          padding: '48px 16px',
+          textAlign: 'center',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 13,
+          color: 'rgba(255,255,255,0.25)',
+          letterSpacing: '2px',
+        }}>
+          Loading...
+        </div>
+      )}
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalStudents={STUDENTS.length}
-        onPageChange={handlePageChange}
-      />
+      {/* Rows */}
+      {!loading && (
+        <>
+          <div ref={listRef} key={currentPage}>
+            {pageStudents.map(student => (
+              <div key={student.id} data-row="">
+                <RankRow student={student} isTop3={student.rank <= 3} />
+              </div>
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalStudents={students.length}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
     </div>
   )
 }

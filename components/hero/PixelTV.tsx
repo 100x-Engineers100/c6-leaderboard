@@ -208,8 +208,8 @@ export function PixelTV({
           letterSpacing: '2px',
         }}>
           <NumberTicker
-            value={student.points}
-            startValue={Math.max(0, student.points - 200)}
+            value={student.total_points}
+            startValue={Math.max(0, student.total_points - 200)}
             delay={0.4}
             style={{ color: color.text, opacity: 1 }}
           /> XP

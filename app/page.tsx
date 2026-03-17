@@ -5,9 +5,12 @@ import { LeaderboardSection } from '@/components/leaderboard/LeaderboardSection'
 import { BackgroundDecor } from '@/components/layout/BackgroundDecor'
 import { useLenis } from '@/hooks/useLenis'
 import { ConfettiCannons } from '@/components/confetti/ConfettiCannons'
+import { useLeaderboard } from '@/hooks/useLeaderboard'
 
 export default function Page() {
   useLenis()
+  const { students, top3, loading } = useLeaderboard()
+
   return (
     <main style={{ minHeight: '100vh', position: 'relative' }}>
       {/* Base Background Layer */}
@@ -18,8 +21,7 @@ export default function Page() {
         zIndex: -1,
       }} />
 
-
-      {/* Bottom black gradient — fixed over bg pattern, covers hero + leaderboard */}
+      {/* Bottom black gradient */}
       <div style={{
         position: 'fixed',
         bottom: 0,
@@ -31,14 +33,14 @@ export default function Page() {
         pointerEvents: 'none',
       }} />
 
-      {/* Stars and Decor — fixed, covers full page scroll */}
+      {/* Stars and Decor */}
       <R3FBackground />
       <BackgroundDecor />
 
       <ConfettiCannons />
 
-<HeroSection />
-      <LeaderboardSection />
+      <HeroSection top3={top3} />
+      <LeaderboardSection students={students} loading={loading} />
     </main>
   )
 }

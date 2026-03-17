@@ -1,3 +1,5 @@
+// This file is kept as a dev fallback only.
+// Production data comes from /api/leaderboard.
 import type { Student } from './types'
 
 const NAMES = [
@@ -13,21 +15,25 @@ function generateStudents(): Student[] {
     const baseName = NAMES[i % NAMES.length]
     const suffix = Math.floor(i / NAMES.length)
     students.push({
-      id: `student-${i + 1}`,
-      rank: i + 1,
-      name: suffix === 0 ? baseName : `${baseName} ${suffix + 1}`,
-      points: Math.max(100, 10000 - i * 48),
+      id:                   `student-${i + 1}`,
+      rank:                 i + 1,
+      name:                 suffix === 0 ? baseName : `${baseName} ${suffix + 1}`,
+      total_points:         Math.max(100, 10000 - i * 48),
+      attendance_pts:       Math.floor(Math.random() * 200),
+      ugc_post_pts:         Math.floor(Math.random() * 100),
+      consistency_bonus_pts: Math.floor(Math.random() * 50),
+      assignment_pts:       0,
+      hackathon_pts:        0,
+      capstone_pts:         0,
     })
   }
   return students
 }
 
-export const STUDENTS: Student[] = generateStudents()
+export const FALLBACK_STUDENTS: Student[] = generateStudents()
 
-// Override top 3 with demo avatars
-const top3Raw = STUDENTS.slice(0, 3)
-export const TOP_3: Student[] = [
-  { ...top3Raw[0], avatar: '/avatar_demo.jpeg' },
-  { ...top3Raw[1], avatar: '/avatar_rank2.jpeg' },
-  { ...top3Raw[2], avatar: '/avatar_rank3.jpeg' },
+export const FALLBACK_TOP_3: Student[] = [
+  { ...FALLBACK_STUDENTS[0], avatar: '/avatar_demo.jpeg' },
+  { ...FALLBACK_STUDENTS[1], avatar: '/avatar_rank2.jpeg' },
+  { ...FALLBACK_STUDENTS[2], avatar: '/avatar_rank3.jpeg' },
 ]

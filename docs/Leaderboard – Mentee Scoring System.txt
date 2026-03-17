@@ -1,0 +1,121 @@
+﻿Leaderboard – Mentee Scoring System (SOP)
+1. Purpose
+This SOP defines the standardized process for awarding and tracking leaderboard points for mentees. The objective is to ensure fairness, transparency, and consistency in evaluating participation, submissions, and overall engagement throughout the cohort.
+2. Scope
+This SOP applies to all mentees enrolled in the program and covers all activities that contribute to leaderboard points during the cohort duration.
+3. Responsibility
+Program / Operations Team
+* Track activities and submissions
+* Validate participation and posts
+* Update the leaderboard regularly
+Mentors / Evaluators
+* Review assignments, hackathons, and capstone projects
+* Provide scores based on evaluation criteria
+Mentees
+* Attend sessions and participate actively
+* Submit assignments and projects within deadlines
+* Ensure authenticity and accuracy in submissions
+________________
+
+
+4. Scoring Components
+Leaderboard points are awarded across the following activities:
+4.1 Attendance
+Attendance is tracked for live lectures conducted on Friday and Saturday.
+Scoring Rule
+* 20 points per lecture attended
+________________
+
+
+4.2 Assignments
+Assignments are evaluated and scored out of 20 marks.
+Scoring Rule
+* Leaderboard points will be equal to the assignment score
+* Example:
+   * Score 16/20 → 16 leaderboard points
+   * Score 20/20 → 20 leaderboard points
+Assignments must be submitted within the defined deadline to receive points.
+________________
+
+
+4.3 #0to100xEngineer Challenge
+Mentees are encouraged to share their learning journey publicly as part of the Build in Public challenge.
+Scoring Rule
+* 20 points per valid post
+* Additional 10 bonus points awarded at the end of the week for 7 consecutive days of posting
+Posts must:
+* Be original
+* Reflect progress or learning related to the program
+* Be publicly accessible
+________________
+
+
+4.4 Mini Hackathon
+The mini hackathon is evaluated out of 100 marks.
+Scoring Rule
+* Leaderboard points will be equal to the hackathon score
+* Example:
+   * 92/100 → 92 leaderboard points
+________________
+
+
+4.5 Mid Capstone Project
+The mid capstone milestone evaluates early project progress.
+Scoring Rule
+* 50 points awarded upon submission
+Points are granted for successful submission within the defined deadline.
+________________
+
+
+4.6 Final Capstone Project
+The final capstone project is the largest scoring component of the leaderboard.
+Scoring Rule
+* 200 points awarded upon submission
+* The final capstone carries the highest weightage on the leaderboard and provides mentees an opportunity to recover points they may have missed earlier and improve their overall ranking.
+This reflects the completion and delivery of the final project.
+________________
+
+
+5. Validation & Exceptions
+* Any discrepancy in leaderboard points must be reported within 48 hours of leaderboard updates.
+* The Program Team’s decision will be final regarding validations or disputes.
+________________
+
+
+6. Leaderboard Updates
+Leaderboard scores will be updated periodically (weekly) by the program team.
+Mentees are encouraged to track their progress and standings regularly.
+
+
+Index
+	Activity
+	Points Awarded
+	Criteria
+	1.
+	Attendance (Fri & Sat Live Lectures)
+	20 points per session
+	Awarded for attending scheduled live lectures
+	2.
+	Assignment Submission
+	As per score (out of 20)
+	Points equal to assignment score if submitted within deadline
+	3.
+	#0to100xEngineer Challenge
+	20 points per post
+	Valid public post showing progress or learning
+	4.
+	Weekly Consistency Bonus
+	10 points
+	Awarded for posting consistently for 7 days in a week
+	5.
+	Mid Capstone Project
+	50 points
+	Awarded for submitting the mid capstone milestone
+	6.
+	Mini Hackathon
+	As per score (out of 100)
+	Awarded for submitting the mid capstone milestone
+	7.
+	Final Capstone Project
+	200 points
+	Awarded for submission of the final capstone project

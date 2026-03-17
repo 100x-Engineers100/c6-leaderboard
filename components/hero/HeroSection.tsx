@@ -1,8 +1,11 @@
 'use client'
 import Image from 'next/image'
+import type { Student } from '@/lib/types'
 import { PodiumTVs } from './PodiumTVs'
 
-export function HeroSection() {
+type Props = { top3: Student[] }
+
+export function HeroSection({ top3 }: Props) {
   return (
     <section style={{
       position: 'relative',
@@ -105,7 +108,7 @@ export function HeroSection() {
         display: 'flex',
         flexDirection: 'column',
       }}>
-        <PodiumTVs />
+        <PodiumTVs top3={top3} />
       </div>
     </section>
   )
