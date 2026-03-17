@@ -1,542 +1,730 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Renaissance x Space Direction</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior: smooth; }
-body {
-  background: #0A0A0A;
-  color: #fff;
-  font-family: 'Space Grotesk', sans-serif;
-  overflow-x: hidden;
-}
 
-/* =========================================
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renaissance x Space Direction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: #0A0A0A;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* =========================================
    SECTION 1: HERO — Space + Renaissance
    Like Shopify Sidekick panel
    ========================================= */
-.section-hero {
-  position: relative;
-  height: 480px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #060408;
-}
+    .section-hero {
+      position: relative;
+      height: 480px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #060408;
+    }
 
-/* Oil painting texture via SVG grain */
-.paint-texture {
-  position: absolute; inset: 0;
-  opacity: 0.18;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23grain)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  mix-blend-mode: overlay;
-}
+    /* Oil painting texture via SVG grain */
+    .paint-texture {
+      position: absolute;
+      inset: 0;
+      opacity: 0.18;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23grain)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      mix-blend-mode: overlay;
+    }
 
-/* Space void background */
-.space-bg {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(249,104,70,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 20% 30%, rgba(80,40,20,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse 30% 40% at 80% 20%, rgba(30,20,60,0.20) 0%, transparent 50%),
-    #060408;
-}
+    /* Space void background */
+    .space-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 100%, rgba(249, 104, 70, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 20% 30%, rgba(80, 40, 20, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 30% 40% at 80% 20%, rgba(30, 20, 60, 0.20) 0%, transparent 50%),
+        #060408;
+    }
 
-/* Stars */
-.stars {
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(0.7px 0.7px at 5% 8%, rgba(255,255,255,0.9) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 14% 3%, rgba(255,255,255,0.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 22% 15%, rgba(255,230,180,1) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 31% 5%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 40% 20%, rgba(255,255,255,0.8) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 52% 8%, rgba(255,255,255,0.5) 0%, transparent 100%),
-    radial-gradient(1.2px 1.2px at 61% 12%, rgba(200,220,255,0.95) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 72% 6%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 84% 18%, rgba(255,255,255,0.6) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 93% 9%, rgba(255,240,200,0.9) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 7% 35%, rgba(255,255,255,0.55) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 18% 42%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 28% 38%, rgba(255,220,150,1) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 47% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 65% 33%, rgba(255,255,255,0.8) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 78% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 90% 28%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(2px 2px at 37% 22%, rgba(255,200,120,1) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 56% 55%, rgba(255,255,255,0.55) 0%, transparent 100%),
-    radial-gradient(0.7px 0.7px at 96% 48%, rgba(255,255,255,0.65) 0%, transparent 100%);
-}
+    /* Stars */
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(0.7px 0.7px at 5% 8%, rgba(255, 255, 255, 0.9) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 14% 3%, rgba(255, 255, 255, 0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 22% 15%, rgba(255, 230, 180, 1) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 31% 5%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 40% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 52% 8%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+        radial-gradient(1.2px 1.2px at 61% 12%, rgba(200, 220, 255, 0.95) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 72% 6%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 84% 18%, rgba(255, 255, 255, 0.6) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 93% 9%, rgba(255, 240, 200, 0.9) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 7% 35%, rgba(255, 255, 255, 0.55) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 18% 42%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 28% 38%, rgba(255, 220, 150, 1) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 47% 45%, rgba(255, 255, 255, 0.6) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 65% 33%, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 78% 40%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 90% 28%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 37% 22%, rgba(255, 200, 120, 1) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 56% 55%, rgba(255, 255, 255, 0.55) 0%, transparent 100%),
+        radial-gradient(0.7px 0.7px at 96% 48%, rgba(255, 255, 255, 0.65) 0%, transparent 100%);
+    }
 
-/* Renaissance figure silhouette — abstract oil-paint style person shape */
-.figure {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 320px;
-  height: 380px;
-}
-/* Cloak/robe shape */
-.figure-robe {
-  position: absolute;
-  bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 260px; height: 320px;
-  background:
-    radial-gradient(ellipse 70% 80% at 50% 80%, rgba(60,35,15,0.85) 0%, rgba(40,20,8,0.60) 50%, transparent 75%);
-  filter: url(#oil-blur);
-}
-.figure-body {
-  position: absolute;
-  bottom: 40px; left: 50%; transform: translateX(-50%);
-  width: 130px; height: 260px;
-  background:
-    linear-gradient(180deg,
-      rgba(80,55,30,0) 0%,
-      rgba(90,62,28,0.7) 20%,
-      rgba(110,75,35,0.85) 50%,
-      rgba(70,45,18,0.9) 80%,
-      rgba(50,30,10,0.95) 100%
-    );
-  border-radius: 40% 40% 30% 30% / 10% 10% 0 0;
-  filter: url(#oil-blur);
-}
-/* Head shape */
-.figure-head {
-  position: absolute;
-  top: 30px; left: 50%; transform: translateX(-50%);
-  width: 70px; height: 85px;
-  background: radial-gradient(ellipse 80% 90% at 50% 50%, rgba(210,165,100,0.85) 0%, rgba(180,130,70,0.7) 50%, rgba(120,80,40,0.5) 80%, transparent 100%);
-  border-radius: 50% 50% 40% 40%;
-  filter: url(#oil-blur);
-}
-/* Collar/ruff detail */
-.figure-collar {
-  position: absolute;
-  top: 108px; left: 50%; transform: translateX(-50%);
-  width: 90px; height: 22px;
-  background: radial-gradient(ellipse, rgba(230,210,180,0.6) 0%, rgba(200,180,140,0.4) 60%, transparent 100%);
-  border-radius: 50%;
-  filter: blur(3px);
-}
-/* Orange glow emanating from figure */
-.figure-glow {
-  position: absolute;
-  bottom: -20px; left: 50%; transform: translateX(-50%);
-  width: 300px; height: 200px;
-  background: radial-gradient(ellipse, rgba(249,104,70,0.15) 0%, transparent 70%);
-  filter: blur(20px);
-}
+    /* Renaissance figure silhouette — abstract oil-paint style person shape */
+    .figure {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px;
+      height: 380px;
+    }
 
-/* Bottom gradient fade */
-.hero-fade {
-  position: absolute;
-  bottom: 0; left: 0; right: 0; height: 40%;
-  background: linear-gradient(transparent, #0A0A0A);
-}
+    /* Cloak/robe shape */
+    .figure-robe {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      height: 320px;
+      background:
+        radial-gradient(ellipse 70% 80% at 50% 80%, rgba(60, 35, 15, 0.85) 0%, rgba(40, 20, 8, 0.60) 50%, transparent 75%);
+      filter: url(#oil-blur);
+    }
 
-/* Nav */
-.hero-nav {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  z-index: 10;
-}
-.nav-brand {
-  font-size: 11px;
-  letter-spacing: 4px;
-  color: rgba(255,255,255,0.45);
-  text-transform: uppercase;
-}
-.nav-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(249,104,70,0.10);
-  border: 1px solid rgba(249,104,70,0.22);
-  border-radius: 20px;
-  padding: 4px 12px;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: rgba(249,104,70,0.80);
-  text-transform: uppercase;
-}
-.live-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: #F96846;
-  animation: blink 2s ease-in-out infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .figure-body {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 260px;
+      background:
+        linear-gradient(180deg,
+          rgba(80, 55, 30, 0) 0%,
+          rgba(90, 62, 28, 0.7) 20%,
+          rgba(110, 75, 35, 0.85) 50%,
+          rgba(70, 45, 18, 0.9) 80%,
+          rgba(50, 30, 10, 0.95) 100%);
+      border-radius: 40% 40% 30% 30% / 10% 10% 0 0;
+      filter: url(#oil-blur);
+    }
 
-/* Big hero text — Shopify style, large bold */
-.hero-text {
-  position: relative;
-  z-index: 5;
-  text-align: center;
-  pointer-events: none;
-}
-.hero-edition {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 5px;
-  color: rgba(249,104,70,0.65);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.hero-main {
-  font-size: 80px;
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -3px;
-  color: #F5F0E8;
-  text-transform: uppercase;
-}
-.hero-main .accent { color: #F96846; }
-.hero-sub-line {
-  margin-top: 10px;
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: rgba(255,255,255,0.3);
-  text-transform: uppercase;
-  font-weight: 300;
-}
+    /* Head shape */
+    .figure-head {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 85px;
+      background: radial-gradient(ellipse 80% 90% at 50% 50%, rgba(210, 165, 100, 0.85) 0%, rgba(180, 130, 70, 0.7) 50%, rgba(120, 80, 40, 0.5) 80%, transparent 100%);
+      border-radius: 50% 50% 40% 40%;
+      filter: url(#oil-blur);
+    }
 
-/* =========================================
+    /* Collar/ruff detail */
+    .figure-collar {
+      position: absolute;
+      top: 108px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: radial-gradient(ellipse, rgba(230, 210, 180, 0.6) 0%, rgba(200, 180, 140, 0.4) 60%, transparent 100%);
+      border-radius: 50%;
+      filter: blur(3px);
+    }
+
+    /* Orange glow emanating from figure */
+    .figure-glow {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 200px;
+      background: radial-gradient(ellipse, rgba(249, 104, 70, 0.15) 0%, transparent 70%);
+      filter: blur(20px);
+    }
+
+    /* Bottom gradient fade */
+    .hero-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(transparent, #0A0A0A);
+    }
+
+    /* Nav */
+    .hero-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 10;
+    }
+
+    .nav-brand {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: rgba(255, 255, 255, 0.45);
+      text-transform: uppercase;
+    }
+
+    .nav-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(249, 104, 70, 0.10);
+      border: 1px solid rgba(249, 104, 70, 0.22);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: rgba(249, 104, 70, 0.80);
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #F96846;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    /* Big hero text — Shopify style, large bold */
+    .hero-text {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .hero-edition {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 5px;
+      color: rgba(249, 104, 70, 0.65);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-main {
+      font-size: 80px;
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: -3px;
+      color: #F5F0E8;
+      text-transform: uppercase;
+    }
+
+    .hero-main .accent {
+      color: #F96846;
+    }
+
+    .hero-sub-line {
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: rgba(255, 255, 255, 0.3);
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    /* =========================================
    SECTION 2: LEADERBOARD — scroll section
    ========================================= */
-.section-board {
-  background: #0A0A0A;
-  padding: 32px 20px 24px;
-}
-.section-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 4px;
-  color: rgba(249,104,70,0.5);
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(255,255,255,0.06);
-}
+    .section-board {
+      background: #0A0A0A;
+      padding: 32px 20px 24px;
+    }
 
-.rank-row {
-  display: grid;
-  grid-template-columns: 36px 36px 1fr auto auto;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  margin-bottom: 4px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(255,255,255,0.02);
-  transition: background 0.2s;
-  font-size: 12px;
-}
-.rank-row:hover { background: rgba(255,255,255,0.04); }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 4px;
+      color: rgba(249, 104, 70, 0.5);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-/* Top 3 special */
-.row-1 {
-  background: rgba(249,104,70,0.06);
-  border-color: rgba(249,104,70,0.18);
-  box-shadow: 0 0 24px rgba(249,104,70,0.05);
-}
-.row-2 {
-  background: rgba(255,180,50,0.04);
-  border-color: rgba(255,180,50,0.12);
-}
-.row-3 {
-  background: rgba(200,200,200,0.03);
-  border-color: rgba(200,200,200,0.08);
-}
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
 
-.rk-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-}
-.row-1 .rk-num { color: #F96846; text-shadow: 0 0 10px rgba(249,104,70,0.6); }
-.row-2 .rk-num { color: #E8A020; text-shadow: 0 0 10px rgba(232,160,32,0.5); }
-.row-3 .rk-num { color: rgba(200,200,200,0.7); }
-.rk-num.faded { color: rgba(255,255,255,0.18); }
+    .rank-row {
+      display: grid;
+      grid-template-columns: 36px 36px 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 0.2s;
+      font-size: 12px;
+    }
 
-.avatar-sm {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.10);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-  color: rgba(255,255,255,0.45);
-  font-weight: 600;
-}
-.row-1 .avatar-sm { border-color: rgba(249,104,70,0.35); }
-.row-2 .avatar-sm { border-color: rgba(232,160,32,0.30); }
+    .rank-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
 
-.rk-name {
-  color: rgba(255,255,255,0.80);
-  font-size: 12px;
-  font-weight: 500;
-}
-.rk-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  min-width: 60px;
-}
-.row-1 .rk-score { color: #F96846; }
-.row-2 .rk-score { color: #E8A020; }
-.row-3 .rk-score { color: rgba(200,200,200,0.65); }
-.rk-score.dim { color: rgba(255,255,255,0.25); }
+    /* Top 3 special */
+    .row-1 {
+      background: rgba(249, 104, 70, 0.06);
+      border-color: rgba(249, 104, 70, 0.18);
+      box-shadow: 0 0 24px rgba(249, 104, 70, 0.05);
+    }
 
-.rk-bar-wrap {
-  width: 60px; height: 2px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 1px;
-}
-.rk-bar { height: 100%; border-radius: 1px; }
-.row-1 .rk-bar { background: #F96846; width: 100%; }
-.row-2 .rk-bar { background: #E8A020; width: 83%; }
-.row-3 .rk-bar { background: rgba(200,200,200,0.4); width: 75%; }
-.r4 .rk-bar { background: rgba(255,255,255,0.15); width: 62%; }
-.r5 .rk-bar { background: rgba(255,255,255,0.12); width: 55%; }
+    .row-2 {
+      background: rgba(255, 180, 50, 0.04);
+      border-color: rgba(255, 180, 50, 0.12);
+    }
 
-/* =========================================
+    .row-3 {
+      background: rgba(200, 200, 200, 0.03);
+      border-color: rgba(200, 200, 200, 0.08);
+    }
+
+    .rk-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .row-1 .rk-num {
+      color: #F96846;
+      text-shadow: 0 0 10px rgba(249, 104, 70, 0.6);
+    }
+
+    .row-2 .rk-num {
+      color: #E8A020;
+      text-shadow: 0 0 10px rgba(232, 160, 32, 0.5);
+    }
+
+    .row-3 .rk-num {
+      color: rgba(200, 200, 200, 0.7);
+    }
+
+    .rk-num.faded {
+      color: rgba(255, 255, 255, 0.18);
+    }
+
+    .avatar-sm {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.45);
+      font-weight: 600;
+    }
+
+    .row-1 .avatar-sm {
+      border-color: rgba(249, 104, 70, 0.35);
+    }
+
+    .row-2 .avatar-sm {
+      border-color: rgba(232, 160, 32, 0.30);
+    }
+
+    .rk-name {
+      color: rgba(255, 255, 255, 0.80);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .rk-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      min-width: 60px;
+    }
+
+    .row-1 .rk-score {
+      color: #F96846;
+    }
+
+    .row-2 .rk-score {
+      color: #E8A020;
+    }
+
+    .row-3 .rk-score {
+      color: rgba(200, 200, 200, 0.65);
+    }
+
+    .rk-score.dim {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .rk-bar-wrap {
+      width: 60px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 1px;
+    }
+
+    .rk-bar {
+      height: 100%;
+      border-radius: 1px;
+    }
+
+    .row-1 .rk-bar {
+      background: #F96846;
+      width: 100%;
+    }
+
+    .row-2 .rk-bar {
+      background: #E8A020;
+      width: 83%;
+    }
+
+    .row-3 .rk-bar {
+      background: rgba(200, 200, 200, 0.4);
+      width: 75%;
+    }
+
+    .r4 .rk-bar {
+      background: rgba(255, 255, 255, 0.15);
+      width: 62%;
+    }
+
+    .r5 .rk-bar {
+      background: rgba(255, 255, 255, 0.12);
+      width: 55%;
+    }
+
+    /* =========================================
    SECTION 3: PODIUM PREVIEW
    ========================================= */
-.section-podium {
-  background: #0D0B09;
-  padding: 28px 20px;
-  border-top: 1px solid rgba(255,255,255,0.04);
-  position: relative;
-  overflow: hidden;
-}
-.podium-bg-glow {
-  position: absolute;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 300px; height: 150px;
-  background: radial-gradient(ellipse, rgba(249,104,70,0.08) 0%, transparent 70%);
-  filter: blur(30px);
-  pointer-events: none;
-}
-.podium-row {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 8px;
-  position: relative;
-  z-index: 2;
-}
-.podium-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.podium-avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  border: 2px solid rgba(255,255,255,0.10);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.5);
-}
-.p1 .podium-avatar { border-color: rgba(249,104,70,0.5); color: #F96846; box-shadow: 0 0 16px rgba(249,104,70,0.25); }
-.p2 .podium-avatar { border-color: rgba(232,160,32,0.4); color: #E8A020; box-shadow: 0 0 12px rgba(232,160,32,0.15); }
-.p3 .podium-avatar { border-color: rgba(200,200,200,0.25); color: rgba(200,200,200,0.65); }
+    .section-podium {
+      background: #0D0B09;
+      padding: 28px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
 
-.podium-name { font-size: 9px; color: rgba(255,255,255,0.45); letter-spacing: 1px; text-align: center; }
-.p1 .podium-name { color: rgba(249,104,70,0.8); }
+    .podium-bg-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 150px;
+      background: radial-gradient(ellipse, rgba(249, 104, 70, 0.08) 0%, transparent 70%);
+      filter: blur(30px);
+      pointer-events: none;
+    }
 
-.podium-block {
-  border-radius: 4px 4px 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-}
-.p1 .podium-block {
-  width: 80px; height: 90px;
-  background: linear-gradient(180deg, rgba(249,104,70,0.25) 0%, rgba(249,104,70,0.12) 100%);
-  border: 1px solid rgba(249,104,70,0.3);
-  color: #F96846;
-  box-shadow: 0 -8px 30px rgba(249,104,70,0.15);
-}
-.p2 .podium-block {
-  width: 70px; height: 65px;
-  background: linear-gradient(180deg, rgba(232,160,32,0.18) 0%, rgba(232,160,32,0.08) 100%);
-  border: 1px solid rgba(232,160,32,0.22);
-  color: #E8A020;
-}
-.p3 .podium-block {
-  width: 70px; height: 45px;
-  background: linear-gradient(180deg, rgba(160,160,160,0.10) 0%, rgba(160,160,160,0.04) 100%);
-  border: 1px solid rgba(160,160,160,0.15);
-  color: rgba(200,200,200,0.55);
-}
+    .podium-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
 
-.section-label-small {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 4px;
-  color: rgba(249,104,70,0.4);
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 16px;
-}
+    .podium-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
 
-/* Bottom info */
-.bottom-bar {
-  background: #080808;
-  border-top: 1px solid rgba(255,255,255,0.04);
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.bb-info { font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.2); text-transform: uppercase; }
-.bb-info b { color: rgba(249,104,70,0.6); }
-.bb-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: rgba(255,255,255,0.15);
-  letter-spacing: 2px;
-}
-</style>
+    .podium-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.5);
+    }
 
-<svg style="position:absolute;width:0;height:0">
-  <defs>
-    <filter id="oil-blur">
-      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="3" seed="5" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-      <feGaussianBlur in="displaced" stdDeviation="5"/>
-    </filter>
-  </defs>
-</svg>
+    .p1 .podium-avatar {
+      border-color: rgba(249, 104, 70, 0.5);
+      color: #F96846;
+      box-shadow: 0 0 16px rgba(249, 104, 70, 0.25);
+    }
 
-<!-- SECTION 1: HERO -->
-<div class="section-hero">
-  <div class="space-bg"></div>
-  <div class="stars"></div>
-  <div class="paint-texture"></div>
+    .p2 .podium-avatar {
+      border-color: rgba(232, 160, 32, 0.4);
+      color: #E8A020;
+      box-shadow: 0 0 12px rgba(232, 160, 32, 0.15);
+    }
 
-  <!-- Renaissance figure silhouette -->
-  <div class="figure">
-    <div class="figure-glow"></div>
-    <div class="figure-robe"></div>
-    <div class="figure-body"></div>
-    <div class="figure-head"></div>
-    <div class="figure-collar"></div>
+    .p3 .podium-avatar {
+      border-color: rgba(200, 200, 200, 0.25);
+      color: rgba(200, 200, 200, 0.65);
+    }
+
+    .podium-name {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .p1 .podium-name {
+      color: rgba(249, 104, 70, 0.8);
+    }
+
+    .podium-block {
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .p1 .podium-block {
+      width: 80px;
+      height: 90px;
+      background: linear-gradient(180deg, rgba(249, 104, 70, 0.25) 0%, rgba(249, 104, 70, 0.12) 100%);
+      border: 1px solid rgba(249, 104, 70, 0.3);
+      color: #F96846;
+      box-shadow: 0 -8px 30px rgba(249, 104, 70, 0.15);
+    }
+
+    .p2 .podium-block {
+      width: 70px;
+      height: 65px;
+      background: linear-gradient(180deg, rgba(232, 160, 32, 0.18) 0%, rgba(232, 160, 32, 0.08) 100%);
+      border: 1px solid rgba(232, 160, 32, 0.22);
+      color: #E8A020;
+    }
+
+    .p3 .podium-block {
+      width: 70px;
+      height: 45px;
+      background: linear-gradient(180deg, rgba(160, 160, 160, 0.10) 0%, rgba(160, 160, 160, 0.04) 100%);
+      border: 1px solid rgba(160, 160, 160, 0.15);
+      color: rgba(200, 200, 200, 0.55);
+    }
+
+    .section-label-small {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 4px;
+      color: rgba(249, 104, 70, 0.4);
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    /* Bottom info */
+    .bottom-bar {
+      background: #080808;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bb-info {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.2);
+      text-transform: uppercase;
+    }
+
+    .bb-info b {
+      color: rgba(249, 104, 70, 0.6);
+    }
+
+    .bb-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.15);
+      letter-spacing: 2px;
+    }
+  </style>
+
+  <svg style="position:absolute;width:0;height:0">
+    <defs>
+      <filter id="oil-blur">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="3" seed="5" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G"
+          result="displaced" />
+        <feGaussianBlur in="displaced" stdDeviation="5" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- SECTION 1: HERO -->
+  <div class="section-hero">
+    <div class="space-bg"></div>
+    <div class="stars"></div>
+    <div class="paint-texture"></div>
+
+    <!-- Renaissance figure silhouette -->
+    <div class="figure">
+      <div class="figure-glow"></div>
+      <div class="figure-robe"></div>
+      <div class="figure-body"></div>
+      <div class="figure-head"></div>
+      <div class="figure-collar"></div>
+    </div>
+
+    <!-- Nav -->
+    <div class="hero-nav">
+      <div class="nav-brand">100x Engineers</div>
+      <div class="nav-pill">
+        <div class="live-dot"></div>
+        C6 Live
+      </div>
+    </div>
+
+    <!-- Big Shopify-style text over the figure -->
+    <div class="hero-text">
+      <div class="hero-edition">Cohort 7 &nbsp;&mdash;&nbsp; 2025</div>
+      <div class="hero-main">Leader<br><span class="accent">board</span></div>
+      <div class="hero-sub-line">Points &nbsp;&middot;&nbsp; Ranks &nbsp;&middot;&nbsp; Glory</div>
+    </div>
+
+    <div class="hero-fade"></div>
   </div>
 
-  <!-- Nav -->
-  <div class="hero-nav">
-    <div class="nav-brand">100x Engineers</div>
-    <div class="nav-pill">
-      <div class="live-dot"></div>
-      C6 Live
+  <!-- SECTION 2: LEADERBOARD TABLE -->
+  <div class="section-board">
+    <div class="section-label">Live Rankings</div>
+
+    <div class="rank-row row-1">
+      <span class="rk-num">01</span>
+      <div class="avatar-sm">AK</div>
+      <span class="rk-name">Arjun Kapoor</span>
+      <div class="rk-bar-wrap">
+        <div class="rk-bar"></div>
+      </div>
+      <span class="rk-score">9,842</span>
+    </div>
+    <div class="rank-row row-2">
+      <span class="rk-num">02</span>
+      <div class="avatar-sm">SR</div>
+      <span class="rk-name">Sneha Rathi</span>
+      <div class="rk-bar-wrap">
+        <div class="rk-bar"></div>
+      </div>
+      <span class="rk-score">8,110</span>
+    </div>
+    <div class="rank-row row-3">
+      <span class="rk-num">03</span>
+      <div class="avatar-sm">VM</div>
+      <span class="rk-name">Vikram Mehta</span>
+      <div class="rk-bar-wrap">
+        <div class="rk-bar"></div>
+      </div>
+      <span class="rk-score">7,390</span>
+    </div>
+    <div class="rank-row r4">
+      <span class="rk-num faded">04</span>
+      <div class="avatar-sm">PJ</div>
+      <span class="rk-name" style="color:rgba(255,255,255,0.5)">Priya Joshi</span>
+      <div class="rk-bar-wrap">
+        <div class="rk-bar"></div>
+      </div>
+      <span class="rk-score dim">6,050</span>
+    </div>
+    <div class="rank-row r5">
+      <span class="rk-num faded">05</span>
+      <div class="avatar-sm">RD</div>
+      <span class="rk-name" style="color:rgba(255,255,255,0.5)">Rahul Desai</span>
+      <div class="rk-bar-wrap">
+        <div class="rk-bar"></div>
+      </div>
+      <span class="rk-score dim">5,420</span>
     </div>
   </div>
 
-  <!-- Big Shopify-style text over the figure -->
-  <div class="hero-text">
-    <div class="hero-edition">Cohort 6 &nbsp;&mdash;&nbsp; 2025</div>
-    <div class="hero-main">Leader<br><span class="accent">board</span></div>
-    <div class="hero-sub-line">Points &nbsp;&middot;&nbsp; Ranks &nbsp;&middot;&nbsp; Glory</div>
-  </div>
-
-  <div class="hero-fade"></div>
-</div>
-
-<!-- SECTION 2: LEADERBOARD TABLE -->
-<div class="section-board">
-  <div class="section-label">Live Rankings</div>
-
-  <div class="rank-row row-1">
-    <span class="rk-num">01</span>
-    <div class="avatar-sm">AK</div>
-    <span class="rk-name">Arjun Kapoor</span>
-    <div class="rk-bar-wrap"><div class="rk-bar"></div></div>
-    <span class="rk-score">9,842</span>
-  </div>
-  <div class="rank-row row-2">
-    <span class="rk-num">02</span>
-    <div class="avatar-sm">SR</div>
-    <span class="rk-name">Sneha Rathi</span>
-    <div class="rk-bar-wrap"><div class="rk-bar"></div></div>
-    <span class="rk-score">8,110</span>
-  </div>
-  <div class="rank-row row-3">
-    <span class="rk-num">03</span>
-    <div class="avatar-sm">VM</div>
-    <span class="rk-name">Vikram Mehta</span>
-    <div class="rk-bar-wrap"><div class="rk-bar"></div></div>
-    <span class="rk-score">7,390</span>
-  </div>
-  <div class="rank-row r4">
-    <span class="rk-num faded">04</span>
-    <div class="avatar-sm">PJ</div>
-    <span class="rk-name" style="color:rgba(255,255,255,0.5)">Priya Joshi</span>
-    <div class="rk-bar-wrap"><div class="rk-bar"></div></div>
-    <span class="rk-score dim">6,050</span>
-  </div>
-  <div class="rank-row r5">
-    <span class="rk-num faded">05</span>
-    <div class="avatar-sm">RD</div>
-    <span class="rk-name" style="color:rgba(255,255,255,0.5)">Rahul Desai</span>
-    <div class="rk-bar-wrap"><div class="rk-bar"></div></div>
-    <span class="rk-score dim">5,420</span>
-  </div>
-</div>
-
-<!-- SECTION 3: PODIUM -->
-<div class="section-podium">
-  <div class="podium-bg-glow"></div>
-  <div class="section-label-small">Top 3 Podium</div>
-  <div class="podium-row">
-    <div class="podium-col p2">
-      <div class="podium-avatar">SR</div>
-      <div class="podium-name">Sneha R.</div>
-      <div class="podium-block">#2</div>
-    </div>
-    <div class="podium-col p1">
-      <div class="podium-avatar">AK</div>
-      <div class="podium-name">Arjun K.</div>
-      <div class="podium-block">#1</div>
-    </div>
-    <div class="podium-col p3">
-      <div class="podium-avatar">VM</div>
-      <div class="podium-name">Vikram M.</div>
-      <div class="podium-block">#3</div>
+  <!-- SECTION 3: PODIUM -->
+  <div class="section-podium">
+    <div class="podium-bg-glow"></div>
+    <div class="section-label-small">Top 3 Podium</div>
+    <div class="podium-row">
+      <div class="podium-col p2">
+        <div class="podium-avatar">SR</div>
+        <div class="podium-name">Sneha R.</div>
+        <div class="podium-block">#2</div>
+      </div>
+      <div class="podium-col p1">
+        <div class="podium-avatar">AK</div>
+        <div class="podium-name">Arjun K.</div>
+        <div class="podium-block">#1</div>
+      </div>
+      <div class="podium-col p3">
+        <div class="podium-avatar">VM</div>
+        <div class="podium-name">Vikram M.</div>
+        <div class="podium-block">#3</div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- BOTTOM -->
-<div class="bottom-bar">
-  <div class="bb-info">Space Grotesk + JetBrains Mono &nbsp;&middot;&nbsp; <b>#F96846</b> accent</div>
-  <div class="bb-tag">Three.js + GSAP + Lenis + Rive</div>
-</div>
+  <!-- BOTTOM -->
+  <div class="bottom-bar">
+    <div class="bb-info">Space Grotesk + JetBrains Mono &nbsp;&middot;&nbsp; <b>#F96846</b> accent</div>
+    <div class="bb-tag">Three.js + GSAP + Lenis + Rive</div>
+  </div>

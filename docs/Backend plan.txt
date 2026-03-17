@@ -1,277 +1,464 @@
-╭─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮│ Plan to implement                                                                                                                                                       ││                                                                                                                                                                         ││ Leaderboard Backend — End-to-End Implementation Plan                                                                                                                    ││                                                                                                                                                                         │
-│ Context                                                                                                                                                                 │
-│                                                                                                                                                                         │
-│ Building the backend for the C7 (Cohort 7) leaderboard. v1 ships attendance + 0to100x post scoring today. Manual score entry (assignments/capstone/hackathon) is future │
-│  scope. Frontend already exists with dummy data — needs to be wired to real data.                                                                                       │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Architecture Decision                                                                                                                                                   │
-│                                                                                                                                                                         │
-│ - Read API: Next.js API routes inside existing Leaderboard project (Vercel)                                                                                             │
-│ - Sync engine: GitHub Actions scripts (weekly cron + one-time bulk import)                                                                                              │
-│ - Leaderboard DB: New Supabase project (owned by this project)                                                                                                          │
-│ - UGC data: Direct Supabase DB query on ugc-tracker's DB                                                                                                                │
-│ - Student roster source of truth: C7 Launchpad CSV                                                                                                                      │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Key Config                                                                                                                                                              │
-│                                                                                                                                                                         │
-│ Edmingle base URL : https://100xengineers-api.edmingle.com/nuSource/api/v1/                                                                                             │
-│ Edmingle ORG_ID   : 11240                                                                                                                                               │
-│ Edmingle API_KEY  : [in .env only - never commit]                                                                                                                       │
-│ C7 batch_id       : 194294                                                                                                                                              │
-│ C7 batch_name     : "100xEngineers_Applied Gen AI Cohort 7"                                                                                                             │
-│ C7 start date     : 2026-03-16                                                                                                                                          │
-│ Edmingle auth     : header { apikey, ORGID } + query params { apikey, ORGID }                                                                                           │
-│ Attendance endpoint: GET /report/csv?apikey=&response_type=1&ORGID=&report_type=55&organization_id=&start_time=&end_time=                                               │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Scoring (v1 — automated)                                                                                                                                                │
-│                                                                                                                                                                         │
-│ ┌─────────────────────────────────┬──────────────────────────────────────────┬──────────────────────────┐                                                               │
-│ │             Metric              │                  Points                  │          Source          │                                                               │
-│ ├─────────────────────────────────┼──────────────────────────────────────────┼──────────────────────────┤                                                               │
-│ │ Attendance (Fri + Sat sessions) │ 20 per session                           │ Edmingle /report/csv     │                                                               │
-│ ├─────────────────────────────────┼──────────────────────────────────────────┼──────────────────────────┤                                                               │
-│ │ #0to100x valid post             │ 20 per post                              │ UGC tracker Post table   │                                                               │
-│ ├─────────────────────────────────┼──────────────────────────────────────────┼──────────────────────────┤                                                               │
-│ │ Weekly consistency bonus        │ 10 per 7-consecutive-day streak achieved │ UGC tracker Streak table │                                                               │
-│ └─────────────────────────────────┴──────────────────────────────────────────┴──────────────────────────┘                                                               │
-│                                                                                                                                                                         │
-│ Scoring (future — manual DB entry)                                                                                                                                      │
-│                                                                                                                                                                         │
-│ ┌────────────────┬─────────────────────┬────────────────────────────┐                                                                                                   │
-│ │     Metric     │       Points        │            How             │                                                                                                   │
-│ ├────────────────┼─────────────────────┼────────────────────────────┤                                                                                                   │
-│ │ Assignment     │ 0-20 per assignment │ Direct Supabase table edit │                                                                                                   │
-│ ├────────────────┼─────────────────────┼────────────────────────────┤                                                                                                   │
-│ │ Mini Hackathon │ 0-100               │ Direct Supabase table edit │                                                                                                   │
-│ ├────────────────┼─────────────────────┼────────────────────────────┤                                                                                                   │
-│ │ Mid Capstone   │ 50                  │ Direct Supabase table edit │                                                                                                   │
-│ ├────────────────┼─────────────────────┼────────────────────────────┤                                                                                                   │
-│ │ Final Capstone │ 200                 │ Direct Supabase table edit │                                                                                                   │
-│ └────────────────┴─────────────────────┴────────────────────────────┘                                                                                                   │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Database Schema (New Supabase)                                                                                                                                          │
-│                                                                                                                                                                         │
-│ students                                                                                                                                                                │
-│                                                                                                                                                                         │
-│ id              UUID PRIMARY KEY DEFAULT gen_random_uuid()                                                                                                              │
-│ name            VARCHAR NOT NULL                                                                                                                                        │
-│ email           VARCHAR UNIQUE NOT NULL                                                                                                                                 │
-│ avatar_url      VARCHAR            -- Tally storage URL, nullable (~135/327 have photos)                                                                                │
-│ edmingle_id     VARCHAR            -- populated on first attendance sync                                                                                                │
-│ ugc_user_id     VARCHAR            -- matched from ugc-tracker by email                                                                                                 │
-│ cohort          VARCHAR DEFAULT 'C7'                                                                                                                                    │
-│ created_at      TIMESTAMP DEFAULT now()                                                                                                                                 │
-│                                                                                                                                                                         │
-│ student_points                                                                                                                                                          │
-│                                                                                                                                                                         │
-│ id                    UUID PRIMARY KEY DEFAULT gen_random_uuid()                                                                                                        │
-│ student_id            UUID REFERENCES students(id) UNIQUE                                                                                                               │
-│ attendance_pts        INT DEFAULT 0                                                                                                                                     │
-│ ugc_post_pts          INT DEFAULT 0                                                                                                                                     │
-│ consistency_bonus_pts INT DEFAULT 0                                                                                                                                     │
-│ assignment_pts        INT DEFAULT 0   -- future                                                                                                                         │
-│ hackathon_pts         INT DEFAULT 0   -- future                                                                                                                         │
-│ capstone_pts          INT DEFAULT 0   -- future                                                                                                                         │
-│ total_points          INT GENERATED ALWAYS AS (                                                                                                                         │
-│                         attendance_pts + ugc_post_pts + consistency_bonus_pts +                                                                                         │
-│                         assignment_pts + hackathon_pts + capstone_pts                                                                                                   │
-│                       ) STORED                                                                                                                                          │
-│ last_synced_at        TIMESTAMP                                                                                                                                         │
-│ updated_at            TIMESTAMP DEFAULT now()                                                                                                                           │
-│                                                                                                                                                                         │
-│ attendance_records  (raw, for audit + dedup)                                                                                                                            │
-│                                                                                                                                                                         │
-│ id                  UUID PRIMARY KEY DEFAULT gen_random_uuid()                                                                                                          │
-│ student_id          UUID REFERENCES students(id)                                                                                                                        │
-│ edminole_student_id VARCHAR                                                                                                                                             │
-│ session_date        DATE NOT NULL                                                                                                                                       │
-│ session_name        VARCHAR                                                                                                                                             │
-│ is_present          BOOLEAN NOT NULL                                                                                                                                    │
-│ created_at          TIMESTAMP DEFAULT now()                                                                                                                             │
-│ UNIQUE (student_id, session_date)   -- dedup key                                                                                                                        │
-│                                                                                                                                                                         │
-│ ugc_posts_cache  (raw, for audit + dedup)                                                                                                                               │
-│                                                                                                                                                                         │
-│ id          UUID PRIMARY KEY DEFAULT gen_random_uuid()                                                                                                                  │
-│ student_id  UUID REFERENCES students(id)                                                                                                                                │
-│ post_url    VARCHAR UNIQUE NOT NULL   -- dedup key                                                                                                                      │
-│ num_likes   INT DEFAULT 0                                                                                                                                               │
-│ num_comments INT DEFAULT 0                                                                                                                                              │
-│ posted_at   TIMESTAMP                                                                                                                                                   │
-│ platform    VARCHAR DEFAULT 'LINKEDIN'                                                                                                                                  │
-│ synced_at   TIMESTAMP DEFAULT now()                                                                                                                                     │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Avatar Strategy                                                                                                                                                         │
-│                                                                                                                                                                         │
-│ - v1 scope (today) — real photos for all students who submitted, initials fallback for rest                                                                             │
-│ - Source: docs/Images - Launch Pad C7 - Sheet1.csv — this IS the same as C7 Launchpad - Sheet1.csv, just the original export with image URLs intact (135 of ~327        │
-│ students have Tally photos)                                                                                                                                             │
-│ - URL format: https://storage.tally.so/private/[file]?id=&accessToken=[JWT]&signature=[hash]                                                                            │
-│ - Access: Direct fetch works — pre-signed JWT in URL, no proxy needed (confirmed from Placement project)                                                                │
-│ - Join key: email column in the CSV                                                                                                                                     │
-│ - Storage: avatar_url VARCHAR in students table (nullable)                                                                                                              │
-│ - Fallback: initials-based avatar for students without photo                                                                                                            │
-│ - Seed script reads avatar_url from Images CSV alongside name/email                                                                                                     │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Files to Create                                                                                                                                                         │
-│                                                                                                                                                                         │
-│ Scripts (run via GitHub Actions or locally)                                                                                                                             │
-│                                                                                                                                                                         │
-│ scripts/                                                                                                                                                                │
-│   seed-students.mjs       -- one-time: CSV → students table, match ugc_user_id                                                                                          │
-│   sync-attendance.mjs     -- fetch Edmingle, upsert records, recalculate pts                                                                                            │
-│   sync-ugc.mjs            -- query UGC DB, upsert posts, calc pts + bonus                                                                                               │
-│   sync-weekly.mjs         -- wrapper: calls both syncs + recalculates totals                                                                                            │
-│   bulk-import.mjs         -- one-time: full historical import from C7 start date                                                                                        │
-│   db.mjs                  -- shared Supabase client (leaderboard DB)                                                                                                    │
-│   ugc-db.mjs              -- shared Supabase client (ugc-tracker DB)                                                                                                    │
-│                                                                                                                                                                         │
-│ Next.js API Route                                                                                                                                                       │
-│                                                                                                                                                                         │
-│ app/api/leaderboard/route.ts   -- GET: returns ranked students with points breakdown                                                                                    │
-│                                                                                                                                                                         │
-│ GitHub Actions                                                                                                                                                          │
-│                                                                                                                                                                         │
-│ .github/workflows/sync.yml     -- weekly Sunday cron + manual trigger                                                                                                   │
-│                                                                                                                                                                         │
-│ Updated Frontend Files                                                                                                                                                  │
-│                                                                                                                                                                         │
-│ lib/types.ts            -- add breakdown fields to Student type                                                                                                         │
-│ lib/dummy-data.ts       -- replace with fetch to /api/leaderboard                                                                                                       │
-│ components/leaderboard/RankTable.tsx   -- wire real column data                                                                                                         │
-│ components/leaderboard/RankRow.tsx     -- show real attendance/ugc/capstone/total                                                                                       │
-│                                                                                                                                                                         │
-│ Env Files                                                                                                                                                               │
-│                                                                                                                                                                         │
-│ .env.local              -- Leaderboard Supabase URL + UGC tracker DB URL                                                                                                │
-│ .env.example            -- already created (update with new vars)                                                                                                       │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Implementation Stages                                                                                                                                                   │
-│                                                                                                                                                                         │
-│ Stage 1 — Supabase Setup + DB Schema                                                                                                                                    │
-│                                                                                                                                                                         │
-│ 1. Create new Supabase project for leaderboard                                                                                                                          │
-│ 2. Run SQL to create 4 tables                                                                                                                                           │
-│ 3. Add LEADERBOARD_DATABASE_URL and UGC_DATABASE_URL to .env.local                                                                                                      │
-│ 4. Test: connect from Node script, verify tables exist                                                                                                                  │
-│                                                                                                                                                                         │
-│ Stage 2 — Seed C7 Students                                                                                                                                              │
-│                                                                                                                                                                         │
-│ 1. Write seed-students.mjs:                                                                                                                                             │
-│   - Read docs/Images - Launch Pad C7 - Sheet1.csv (original, has Tally avatar URLs)                                                                                     │
-│   - Parse: name, email, avatar_url (column: "Please share a cool picture/selfie of yours")                                                                              │
-│   - Upsert each row into students (name, email, avatar_url)                                                                                                             │
-│   - Query UGC tracker User table by email → store ugc_user_id                                                                                                           │
-│   - Log unmatched emails (students with no UGC account yet)                                                                                                             │
-│ 2. Test: run script, verify ~327 rows in students table, check match rate, spot-check avatar URLs                                                                       │
-│                                                                                                                                                                         │
-│ Stage 3 — Attendance Sync                                                                                                                                               │
-│                                                                                                                                                                         │
-│ 1. Write sync-attendance.mjs:                                                                                                                                           │
-│   - Accept start_time and end_time params (unix timestamps)                                                                                                             │
-│   - Call Edmingle /report/csv with C7 batch_id filter                                                                                                                   │
-│   - Match student_Id from response to students.edminole_id (populate on first run via email match on /organization/students)                                            │
-│   - Upsert attendance_records (UNIQUE on student_id + session_date)                                                                                                     │
-│   - Recalculate student_points.attendance_pts = COUNT(sessions where is_present=true) * 20                                                                              │
-│ 2. Test: run for past 2 Fridays/Saturdays, verify records, check known student's points                                                                                 │
-│                                                                                                                                                                         │
-│ Stage 4 — UGC Sync                                                                                                                                                      │
-│                                                                                                                                                                         │
-│ UGC tracker schema (confirmed):                                                                                                                                         │
-│ - User table: id (UUID), email, name, cohortId → filter C7 by cohortId = '4c8458b3-a700-42b2-9cb1-f52b3045e2c3'                                                         │
-│ - Post table: id, userId (FK), url (UNIQUE), platform, numLikes, numComments, postedAt                                                                                  │
-│ - Streak table: userId (PK), currentStreak, weeklyStreak, lastWeeklyStreakAwardedWeek                                                                                   │
-│                                                                                                                                                                         │
-│ 1. Write sync-ugc.mjs:                                                                                                                                                  │
-│   - Get C7 user IDs: SELECT id, email FROM "User" WHERE "cohortId" = '4c8458b3-a700-42b2-9cb1-f52b3045e2c3'                                                             │
-│   - Join to leaderboard students by email → get student_id + ugc_user_id mapping                                                                                        │
-│   - Fetch posts: SELECT * FROM "Post" WHERE "userId" IN (...c7 user ids...)                                                                                             │
-│   - Upsert into ugc_posts_cache (UNIQUE on post_url)                                                                                                                    │
-│   - Calculate ugc_post_pts per student = COUNT(their posts) * 20                                                                                                        │
-│   - Fetch streaks: SELECT * FROM "Streak" WHERE "userId" IN (...c7 user ids...)                                                                                         │
-│   - Calculate consistency_bonus_pts = weeklyStreak * 10 per student                                                                                                     │
-│   - Upsert student_points with new values                                                                                                                               │
-│ 2. Test: verify post counts + streak match what ugc-tracker shows for a known C7 student                                                                                │
-│                                                                                                                                                                         │
-│ Stage 5 — Next.js API Route                                                                                                                                             │
-│                                                                                                                                                                         │
-│ 1. Create app/api/leaderboard/route.ts:                                                                                                                                 │
-│ GET /api/leaderboard                                                                                                                                                    │
-│ // Query: SELECT students.*, student_points.*                                                                                                                           │
-│ //        ORDER BY total_points DESC                                                                                                                                    │
-│ // Return: [{ rank, name, total_points, attendance_pts, ugc_post_pts,                                                                                                   │
-│ //            consistency_bonus_pts, capstone_pts }]                                                                                                                    │
-│ 2. Test: hit endpoint, verify sorted list with correct points                                                                                                           │
-│                                                                                                                                                                         │
-│ Stage 6 — Frontend Integration                                                                                                                                          │
-│                                                                                                                                                                         │
-│ 1. Update lib/types.ts:                                                                                                                                                 │
-│ type Student = {                                                                                                                                                        │
-│   id: string; rank: number; name: string;                                                                                                                               │
-│   total_points: number; attendance_pts: number;                                                                                                                         │
-│   ugc_post_pts: number; consistency_bonus_pts: number;                                                                                                                  │
-│   capstone_pts: number; avatar?: string;                                                                                                                                │
-│ }                                                                                                                                                                       │
-│ 2. Replace dummy data in lib/dummy-data.ts with fetch('/api/leaderboard')                                                                                               │
-│ 3. Update RankRow.tsx to display real Attendance / #0to100x / Projects / Total XP columns                                                                               │
-│ 4. Update PodiumTVs.tsx top-3 to use real names                                                                                                                         │
-│ 5. Test: full UI shows real students, sorted by total_points                                                                                                            │
-│                                                                                                                                                                         │
-│ Stage 7 — GitHub Actions                                                                                                                                                │
-│                                                                                                                                                                         │
-│ 1. Create .github/workflows/sync.yml:                                                                                                                                   │
-│   - Weekly: every Sunday 18:30 UTC (midnight IST)                                                                                                                       │
-│   - Manual trigger (for bulk import)                                                                                                                                    │
-│   - Runs node scripts/sync-weekly.mjs                                                                                                                                   │
-│ 2. Add GitHub Secrets: LEADERBOARD_DATABASE_URL, UGC_DATABASE_URL, EDMINOLE_API_KEY, EDMINOLE_BASE_URL, EDMINOLE_ORG_ID                                                 │
-│ 3. Write bulk-import.mjs — loop from 2026-03-16 to today, week by week                                                                                                  │
-│ 4. Test: manual trigger bulk import, verify historical data populates correctly                                                                                         │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Identity Linking Strategy                                                                                                                                               │
-│                                                                                                                                                                         │
-│ - Primary: match by email across CSV / Edmingle / UGC tracker                                                                                                           │
-│ - On first attendance sync: call Edmingle /organization/students to get student_Id per email → store as edminole_id                                                     │
-│ - Log all unmatched students to console for manual review                                                                                                               │
-│ - Accuracy target: 95%+ auto-matched, rest manually resolved via Supabase table edit                                                                                    │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Prerequisites (user must do before implementation)                                                                                                                      │
-│                                                                                                                                                                         │
-│ 1. Create new Supabase project → copy DATABASE_URL to .env.local                                                                                                        │
-│ 2. Add GitHub repo secrets at: Settings → Secrets and variables → Actions → New repository secret                                                                       │
-│   - LEADERBOARD_DATABASE_URL — new Supabase connection string                                                                                                           │
-│   - UGC_DATABASE_URL — ugc-tracker Supabase connection string                                                                                                           │
-│   - EDMINOLE_API_KEY — b4e4203ce998a16e426b6b231e2fc859                                                                                                                 │
-│   - EDMINOLE_BASE_URL — https://100xengineers-api.edmingle.com/nuSource/api/v1/                                                                                         │
-│   - EDMINOLE_ORG_ID — 11240                                                                                                                                             │
-│ GitHub repo: https://github.com/100x-Engineers100/c6-leaderboard.git                                                                                                    │
-│                                                                                                                                                                         │
-│ ---                                                                                                                                                                     │
-│ Today's Deliverable (v1) — COMPLETE                                                                                                                                     │
-│                                                                                                                                                                         │
-│ Complete Stages 1–6. Live leaderboard with:                                                                                                                             │
-│ - Real C7 student names (from CSV, ~327 students)                                                                                                                       │
-│ - Real avatar photos for the ~135 students who submitted (Tally URLs, direct fetch)                                                                                     │
-│ - Real attendance points (Edmingle API, past 1 week of sessions)                                                                                                        │
-│ - Real #0to100x post points (UGC tracker DB)                                                                                                                            │
-│ - Weekly consistency bonus                                                                                                                                              │
-│ - Frontend wired to real data, top-3 podium shows real names + photos                                                                                                   │
-│                                                                                                                                                                         │
-│ Tomorrow / Next Session                                                                                                                                                 │
-│                                                                                                                                                                         │
-│ Stage 7: GitHub Actions weekly cron setup.                                                                                                                              │
-│                                                                                                                                                                         │
-│ Future (v3+)                                                                                                                                                            │
-│                                                                                                                                                                         │
-│ - Admin panel / CSV upload for manual score entry                                                                                                                       │
-│ - Filters: all-time / weekly / monthly                                                                                                                                  │
-│ - Assignment, hackathon, capstone scoring                                                                                                                               │
-╰───────────────────────────────────────────────
+================================================================================
+LEADERBOARD BACKEND — COMPLETE ARCHITECTURE & IMPLEMENTATION RECORD
+C7 (Cohort 7) | 100xEngineers Applied Gen AI
+Last updated: 2026-03-17
+================================================================================
+
+--------------------------------------------------------------------------------
+STATUS: V1 COMPLETE AND LIVE
+--------------------------------------------------------------------------------
+
+All 7 stages shipped. Live leaderboard with real C7 student data, UGC post
+scoring, Tally avatars, and weekly GitHub Actions sync.
+
+
+--------------------------------------------------------------------------------
+ARCHITECTURE
+--------------------------------------------------------------------------------
+
+  [C7 Launchpad CSV]  [Images CSV]  [User_rows_ugc.csv]
+          |                |                |
+          v                v                v
+  scripts/seed-students.mjs  (one-time, run manually)
+          |
+          v
+  [Supabase: Leaderboard DB]  <----  scripts/sync-attendance.mjs  <-- Edmingle API
+          |                   <----  scripts/sync-ugc.mjs         <-- UGC Tracker DB
+          |
+          v
+  app/api/leaderboard/route.ts  (Next.js, deployed on Vercel)
+          |
+          v
+  hooks/useLeaderboard.ts  (client fetch on page load)
+          |
+          v
+  PodiumTVs + RankTable  (frontend, real data)
+
+  GitHub Actions (sync.yml):
+    - Weekly cron: Sunday 18:30 UTC (midnight IST)
+    - Manual trigger: mode=sync (weekly) or mode=bulk (full historical)
+    - Runs: node scripts/sync-weekly.mjs
+
+
+--------------------------------------------------------------------------------
+KEY CONFIG
+--------------------------------------------------------------------------------
+
+Edmingle base URL : https://100xengineers-api.edmingle.com/nuSource/api/v1
+Edmingle ORG_ID   : 11240
+Edmingle API_KEY  : [in .env.local only — never commit]
+C7 batch_id       : 194294
+C7 batch_name     : 100xEngineers_Applied Gen AI Cohort 7
+C7 start date     : 2026-03-16
+Attendance endpoint: GET /report/csv?apikey=&response_type=1&ORGID=
+                     &report_type=55&organization_id=&start_time=&end_time=
+
+Leaderboard Supabase : qosndqcdupypfkfgduif (project ref)
+UGC Tracker Supabase : zwtxxevribrvrwtgcfqj (project ref)
+C7 cohort ID (UGC)   : 4c8458b3-a700-42b2-9cc1-f52b3045e2c3
+
+
+--------------------------------------------------------------------------------
+SCORING (V1 — LIVE)
+--------------------------------------------------------------------------------
+
+  Metric                        Points          Source
+  ─────────────────────────────────────────────────────────────────
+  Attendance (Fri + Sat)        20 per session  Edmingle /report/csv
+  #0to100x valid post           20 per post     UGC tracker Post table
+  Weekly consistency bonus      10 per week     UGC tracker Streak table
+  ─────────────────────────────────────────────────────────────────
+  total_points = attendance_pts + ugc_post_pts + consistency_bonus_pts
+               + assignment_pts + hackathon_pts + capstone_pts
+
+
+--------------------------------------------------------------------------------
+SCORING (FUTURE — MANUAL DB ENTRY)
+--------------------------------------------------------------------------------
+
+  Metric            Points          How
+  ──────────────────────────────────────────────────────────
+  Assignment        0-20 each       Edit student_points in Supabase table editor
+  Mini Hackathon    0-100           Edit student_points in Supabase table editor
+  Mid Capstone      50 fixed        Edit student_points in Supabase table editor
+  Final Capstone    200 fixed       Edit student_points in Supabase table editor
+  ──────────────────────────────────────────────────────────
+  No API needed. Go to Supabase → Leaderboard project → Table Editor →
+  student_points → find student row → edit the relevant column directly.
+  total_points recalculates automatically (GENERATED ALWAYS AS column).
+
+
+--------------------------------------------------------------------------------
+DATABASE SCHEMA (Leaderboard Supabase)
+--------------------------------------------------------------------------------
+
+  students
+  --------
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  name            VARCHAR NOT NULL
+  email           VARCHAR UNIQUE NOT NULL
+  avatar_url      VARCHAR                    -- Tally pre-signed URL
+  edmingle_id     VARCHAR                    -- populated on first attendance sync
+  ugc_user_id     VARCHAR                    -- matched from UGC tracker by email
+  cohort          VARCHAR DEFAULT 'C7'
+  created_at      TIMESTAMP DEFAULT now()
+
+  student_points
+  --------------
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  student_id            UUID REFERENCES students(id) UNIQUE NOT NULL
+  attendance_pts        INT DEFAULT 0
+  ugc_post_pts          INT DEFAULT 0
+  consistency_bonus_pts INT DEFAULT 0
+  assignment_pts        INT DEFAULT 0        -- manual entry
+  hackathon_pts         INT DEFAULT 0        -- manual entry
+  capstone_pts          INT DEFAULT 0        -- manual entry
+  total_points          INT GENERATED ALWAYS AS (
+                          attendance_pts + ugc_post_pts + consistency_bonus_pts +
+                          assignment_pts + hackathon_pts + capstone_pts
+                        ) STORED
+  last_synced_at        TIMESTAMP
+  updated_at            TIMESTAMP DEFAULT now()
+
+  attendance_records
+  ------------------
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  student_id          UUID REFERENCES students(id)
+  edmingle_student_id VARCHAR
+  session_date        DATE NOT NULL
+  session_name        VARCHAR
+  is_present          BOOLEAN NOT NULL
+  created_at          TIMESTAMP DEFAULT now()
+  UNIQUE (student_id, session_date)          -- dedup key
+
+  ugc_posts_cache
+  ---------------
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  student_id   UUID REFERENCES students(id)
+  post_url     VARCHAR UNIQUE NOT NULL       -- dedup key
+  num_likes    INT DEFAULT 0
+  num_comments INT DEFAULT 0
+  posted_at    TIMESTAMP
+  platform     VARCHAR DEFAULT 'LINKEDIN'
+  synced_at    TIMESTAMP DEFAULT now()
+
+
+--------------------------------------------------------------------------------
+ACTUAL DATA (as of 2026-03-17, cohort day 1)
+--------------------------------------------------------------------------------
+
+  Students seeded      : 129 (not ~327 — plan estimate was wrong)
+  With Tally avatars   : 129 (100% — all students have photos)
+  Matched to UGC DB    : 124 / 129
+  Unmatched (no UGC)   : 5 (haven't signed up to UGC tracker yet)
+    - shloksharma0003@gmail.com
+    - abhinav27c@gmail.com
+    - amanat@fitmantra.com
+    - seeretgheek@gmail.com
+    - adi12ti@gmail.com
+  UGC posts cached     : 10 (cohort just started)
+  Students with posts  : 7
+  Attendance records   : 0 (no sessions yet — cohort started March 16)
+
+
+--------------------------------------------------------------------------------
+FILES CREATED
+--------------------------------------------------------------------------------
+
+  scripts/
+    db.mjs                -- Supabase client (leaderboard DB)
+    ugc-db.mjs            -- Supabase client (UGC tracker DB)
+    seed-students.mjs     -- one-time: CSV → students + student_points
+    sync-attendance.mjs   -- Edmingle CSV → attendance_records → attendance_pts
+    sync-ugc.mjs          -- UGC DB → ugc_posts_cache → ugc/streak pts
+    sync-weekly.mjs       -- wrapper: runs both syncs back-to-back
+    bulk-import.mjs       -- week-by-week historical import from C7 start date
+    schema.sql            -- all 4 CREATE TABLE statements
+
+  app/api/leaderboard/
+    route.ts              -- GET /api/leaderboard, returns ranked student array
+
+  lib/
+    supabase.ts           -- lazy singleton Supabase client (serverless-safe)
+    types.ts              -- Student type with full points breakdown
+    dummy-data.ts         -- fallback data (used if API is unreachable)
+
+  hooks/
+    useLeaderboard.ts     -- client-side fetch hook with fallback
+
+  .github/workflows/
+    sync.yml              -- weekly cron + manual trigger
+
+  docs/
+    User_rows_ugc.csv     -- exported UGC User table (used as seed fallback)
+
+
+--------------------------------------------------------------------------------
+ENV VARS
+--------------------------------------------------------------------------------
+
+  .env.local (local dev):
+    LEADERBOARD_SUPABASE_URL
+    LEADERBOARD_SUPABASE_SERVICE_KEY
+    UGC_SUPABASE_URL
+    UGC_SUPABASE_SERVICE_KEY
+    EDMINGLE_BASE_URL
+    EDMINGLE_API_KEY
+    EDMINGLE_ORG_ID
+    C7_BATCH_ID
+
+  Vercel (production — only these 2 needed for the API route):
+    LEADERBOARD_SUPABASE_URL
+    LEADERBOARD_SUPABASE_SERVICE_KEY
+
+  GitHub Secrets (all 8, used by sync workflow):
+    All 8 vars above
+
+
+--------------------------------------------------------------------------------
+STAGES COMPLETED
+--------------------------------------------------------------------------------
+
+  [DONE] Stage 1 — Supabase Setup + DB Schema
+    - New Leaderboard Supabase project created
+    - schema.sql run: 4 tables created
+    - .env.local configured
+
+  [DONE] Stage 2 — Seed C7 Students
+    - 129 unique students seeded (5 CSV duplicates auto-skipped)
+    - 129 Tally avatar URLs stored
+    - 124 students matched to UGC tracker by email
+    - CSV fallback implemented (docs/User_rows_ugc.csv) for when UGC DB
+      permissions fail
+
+  [DONE] Stage 3 — Attendance Sync
+    - sync-attendance.mjs working
+    - Returns 0 rows currently (expected — cohort started March 16,
+      no Edmingle sessions recorded yet)
+    - Will auto-populate after first Friday/Saturday session
+
+  [DONE] Stage 4 — UGC Sync
+    - sync-ugc.mjs working
+    - 10 posts synced, 7 students scored
+    - Streak table queried, 0 streaks yet (day 1)
+
+  [DONE] Stage 5 — Next.js API Route
+    - GET /api/leaderboard returns 129 ranked students
+    - Verified locally: correct sort, correct points, Tally avatars in response
+
+  [DONE] Stage 6 — Frontend Integration
+    - useLeaderboard hook fetches from /api/leaderboard
+    - PodiumTVs shows real top-3 with real avatars
+    - RankTable shows real attendance/UGC/#0to100x/total columns
+    - Loading states handled
+
+  [DONE] Stage 7 — GitHub Actions
+    - sync.yml deployed
+    - Weekly cron: Sunday 18:30 UTC
+    - Manual sync run: completed successfully
+    - Manual bulk run: completed successfully
+    - Node.js upgraded to 24 to avoid deprecation warning
+
+
+--------------------------------------------------------------------------------
+COMMON PITFALLS (ENCOUNTERED AND FIXED)
+--------------------------------------------------------------------------------
+
+  1. COHORT ID TYPO
+     Plan had wrong C7 cohort ID: 4c8458b3-a700-42b2-9cb1-f52b3045e2c3
+     Actual ID in UGC DB:         4c8458b3-a700-42b2-9cc1-f52b3045e2c3
+     Difference: 9cb1 vs 9cc1 (one character)
+     Impact: UGC sync returned 0 users
+     Fix: corrected in sync-ugc.mjs and seed-students.mjs
+
+  2. UGC SUPABASE PERMISSION DENIED
+     Error: "permission denied for schema public"
+     Cause: Newer Supabase projects revoke default PostgREST schema grants.
+            Even with service_role key, USAGE on public schema must be
+            explicitly granted.
+     Fix: Run in UGC Tracker SQL Editor:
+       GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+       GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+       GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+
+  3. DOTENV LOADING .env vs .env.local
+     dotenv/config defaults to .env, not .env.local.
+     Fix: scripts use config({ path: join(process.cwd(), '.env.local') })
+
+  4. SUPABASE CLIENT THROWS AT BUILD TIME
+     lib/supabase.ts initially threw if env vars were missing at module load.
+     Next.js build executes module-level code, causing build failure.
+     Fix: lazy singleton — only throws at request time inside getSupabase()
+
+  5. GSAP NULL REF ERROR ON LOAD
+     usePodiumAnimation ran immediately on mount. PodiumTVs returned early
+     (empty div) while data loaded, so tv1/2/3Ref were null.
+     Error: TypeError: Cannot read properties of null (reading '_gsap')
+     Fix: usePodiumAnimation(ready: boolean) — effect skips if !ready.
+          PodiumTVs passes ready = !!(s1 && s2 && s3). Animation fires
+          once real top-3 data arrives.
+
+  6. CSV ROW COUNT MISMATCH
+     Simple line-count gave 326 rows. Correct CSV parser gave 134 rows.
+     Cause: quoted fields contain embedded newlines — line-split is wrong.
+     Fix: proper CSV parser that respects quoted fields.
+
+  7. DUPLICATE EMAILS IN ROSTER CSV
+     5 students submitted the Launchpad form twice.
+     Fix: seed script deduplicates by email, first-occurrence wins.
+
+  8. STUDENT COUNT MUCH LOWER THAN EXPECTED
+     Plan estimated ~327 students. Actual: 129 unique students.
+     Cause: the plan was based on a rough estimate, not the actual CSV.
+
+
+--------------------------------------------------------------------------------
+V2 PLAN — MANUAL SCORING + ADMIN WORKFLOW
+--------------------------------------------------------------------------------
+
+  Goal: Program team can enter assignment/hackathon/capstone scores without
+        touching code or SQL.
+
+  Option A (simplest — no new code):
+    Use Supabase Table Editor directly.
+    Go to student_points table → find student row → edit column.
+    total_points recalculates automatically.
+    Suitable for small team, infrequent updates.
+
+  Option B (recommended for scale):
+    Build a minimal admin page at /admin (password-protected via middleware).
+
+    UI: searchable student list → click student → score entry form
+    Fields: assignment_pts, hackathon_pts, capstone_pts
+    API: POST /api/admin/scores  { student_id, field, value }
+    Auth: simple shared password in env var checked in Next.js middleware
+
+    Files to add:
+      app/admin/page.tsx
+      app/api/admin/scores/route.ts
+      middleware.ts  (password gate)
+
+  Schema additions needed for Option B:
+    score_audit_log (optional but recommended)
+      id, student_id, field, old_value, new_value, changed_by, changed_at
+
+
+--------------------------------------------------------------------------------
+V2 PLAN — ATTENDANCE AUTO-SYNC VERIFICATION
+--------------------------------------------------------------------------------
+
+  Current state: sync-attendance.mjs is implemented but returns 0 rows
+  because Edmingle has no session data yet (cohort day 1).
+
+  Action needed after first session (Friday March 20 or Saturday March 21):
+    1. Run manually: node scripts/sync-attendance.mjs
+    2. Check attendance_records table in Supabase for new rows
+    3. Verify student_points.attendance_pts updated correctly
+
+  If Edmingle CSV format differs from what the parser expects:
+    - Download a sample CSV manually from Edmingle dashboard
+    - Check column headers match what parseAttendanceCSV() expects:
+      student id, email, session name, session date, status
+    - Update the column name mapping in sync-attendance.mjs if needed
+
+  Edmingle student ID mapping:
+    On first successful sync, sync-attendance.mjs calls
+    /organization/students to get student_Id per email and stores it
+    in students.edmingle_id for future fast matching.
+
+
+--------------------------------------------------------------------------------
+V3 PLAN — FILTERS (ALL-TIME / WEEKLY / MONTHLY)
+--------------------------------------------------------------------------------
+
+  Goal: Users can toggle leaderboard view between time windows.
+
+  Architecture:
+    - attendance_records already has session_date — filter by date range
+    - ugc_posts_cache already has posted_at — filter by date range
+    - Add ?period=alltime|weekly|monthly query param to /api/leaderboard
+    - API recalculates points on-the-fly for the requested window
+      (do NOT store pre-computed period points — too complex to maintain)
+
+  API change:
+    GET /api/leaderboard?period=weekly
+    -- calculates points only from posts/sessions in last 7 days
+
+  Frontend change:
+    - Add period toggle buttons to LeaderboardSection
+    - Pass period to useLeaderboard(period) hook
+    - Append ?period= to fetch URL
+
+  Performance note:
+    On-the-fly aggregation over 129 students is trivially fast.
+    Only optimize if student count exceeds ~10,000.
+
+
+--------------------------------------------------------------------------------
+V3 PLAN — COHORT SWITCHER (C6 / C7 / future)
+--------------------------------------------------------------------------------
+
+  students table already has cohort column.
+  Add ?cohort=C7 param to /api/leaderboard.
+  Seed script already tags all rows with cohort='C7'.
+  To add C6: run seed with a C6 CSV and cohort='C6'.
+  Frontend: dropdown in navbar to switch cohort.
+
+
+--------------------------------------------------------------------------------
+FUTURE FEATURES (BACKLOG)
+--------------------------------------------------------------------------------
+
+  Streak display
+    Show current streak badge next to student name in the table.
+    Data available: Streak table in UGC tracker has currentStreak field.
+    Already synced but not surfaced in UI.
+
+  Live updates
+    Currently: page fetches on load, stale after that.
+    Option: add revalidate interval to useLeaderboard (e.g. every 5 min)
+    Option: Supabase Realtime subscription on student_points table
+    Complexity: low — single useEffect change
+
+  Student profile page
+    /student/[id] — shows full breakdown, post history, attendance record
+    Data already available in ugc_posts_cache + attendance_records
+
+  Discord bot integration
+    Post weekly leaderboard update to Discord #leaderboard channel
+    Trigger from sync-weekly.mjs after sync completes
+    Use Discord webhook (single fetch call, no library needed)
+
+  Edmingle webhook (if available)
+    Replace weekly cron with real-time attendance sync
+    Check Edmingle API docs for webhook support
+
+  Search / filter in table
+    Client-side filter by name (no API change needed)
+    Add a search input above RankTable, filter STUDENTS array client-side
+
+
+--------------------------------------------------------------------------------
+RUNNING THE SYSTEM
+--------------------------------------------------------------------------------
+
+  One-time setup (already done):
+    node scripts/seed-students.mjs
+
+  Manual sync (run anytime):
+    node scripts/sync-attendance.mjs
+    node scripts/sync-ugc.mjs
+
+  Full historical import:
+    node scripts/bulk-import.mjs
+
+  Weekly auto-sync:
+    GitHub Actions → Weekly Leaderboard Sync → runs every Sunday midnight IST
+    Or trigger manually from Actions tab (mode=sync or mode=bulk)
+
+  Add manual scores (assignments/hackathons/capstone):
+    Supabase → Leaderboard project → Table Editor → student_points
+    Find student row → edit assignment_pts / hackathon_pts / capstone_pts
+    total_points updates automatically
+
+================================================================================

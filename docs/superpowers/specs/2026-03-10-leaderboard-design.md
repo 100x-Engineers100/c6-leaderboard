@@ -9,7 +9,7 @@ Status: Approved
 
 ## 1. Project Overview
 
-**What:** Single-page public leaderboard for 100xEngineers Cohort 6 (C6).
+**What:** Single-page public leaderboard for 100xEngineers Cohort 7 (C6).
 **Why:** Gamify the cohort experience by ranking ~200-300 students on total points earned across UGC content, attendance, and assignment submissions.
 **Who:** Public — anyone can view, no login required.
 

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a fully animated, public-facing leaderboard page for 100xEngineers Cohort 6 — pixel art TV podium for top 3, ranked list with pagination, all dummy data, no backend.
+**Goal:** Build a fully animated, public-facing leaderboard page for 100xEngineers Cohort 7 — pixel art TV podium for top 3, ranked list with pagination, all dummy data, no backend.
 
 **Architecture:** Next.js App Router single-page app. Top 1/3 = R3F particle background + 3 GSAP-animated pixel art TVs (podium). Bottom 2/3 = flat rank/name/points table with Google-style pagination. All data from static dummy JSON. Lenis for smooth scroll.
 
@@ -1371,7 +1371,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'C6 Leaderboard — 100xEngineers',
-  description: 'Cohort 6 live rankings',
+  description: 'Cohort 7 live rankings',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

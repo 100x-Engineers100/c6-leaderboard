@@ -15,7 +15,7 @@ The 100xEngineers program team has no visual, public-facing way to display cohor
 
 ## 2. Product Summary
 
-A single-page public leaderboard for Cohort 6 (C6) that ranks ~200-300 students by total earned points. Points are calculated from three inputs: LinkedIn UGC content, class attendance, and assignment submissions. The page is visually high-quality — pixel art TV podium for top 3, ranked list below, GSAP animations, Shopify-inspired editorial aesthetic.
+A single-page public leaderboard for Cohort 7 (C6) that ranks ~200-300 students by total earned points. Points are calculated from three inputs: LinkedIn UGC content, class attendance, and assignment submissions. The page is visually high-quality — pixel art TV podium for top 3, ranked list below, GSAP animations, Shopify-inspired editorial aesthetic.
 
 ---
 

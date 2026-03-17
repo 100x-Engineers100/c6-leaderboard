@@ -1,6 +1,6 @@
 /**
  * sync-attendance.mjs
- * Fetch Edmingle attendance CSV for C7, upsert records, recalculate points.
+ * Fetch Edmingle attendance summary CSV for C7, upsert attendance_pts to student_points.
  *
  * Run:
  *   node scripts/sync-attendance.mjs                    # last 14 days
@@ -8,10 +8,11 @@
  */
 import { db } from './db.mjs'
 
-const BASE_URL = process.env.EDMINGLE_BASE_URL?.replace(/\/$/, '')
-const API_KEY  = process.env.EDMINGLE_API_KEY
-const ORG_ID   = process.env.EDMINGLE_ORG_ID
-const BATCH_ID = process.env.C7_BATCH_ID || '194294'
+const BASE_URL  = process.env.EDMINGLE_BASE_URL?.replace(/\/$/, '')
+const API_KEY   = process.env.EDMINGLE_API_KEY
+const ORG_ID    = process.env.EDMINGLE_ORG_ID
+const CLASS_ID  = process.env.C7_CLASS_ID || '446933'
+const BATCH_ID  = process.env.C7_BATCH_ID || '194294'
 
 if (!BASE_URL || !API_KEY || !ORG_ID) {
   throw new Error('[ERROR] EDMINGLE_BASE_URL, EDMINGLE_API_KEY, EDMINGLE_ORG_ID must be set')
@@ -26,34 +27,39 @@ async function fetchEdmingleStudents() {
     return []
   }
   const json = await res.json()
-  // Response shape varies — handle both array and nested data
   const list = Array.isArray(json) ? json : (json.data ?? json.students ?? [])
-  return list // each item expected to have email + student_Id (or id)
+  return list
 }
 
-// --- Parse Edmingle CSV attendance report ---
-// Columns vary but typically: Student Name, Student ID, Email, Session Name, Session Date, Status
-function parseAttendanceCSV(csvText) {
-  const lines = csvText.split('\n').filter(l => l.trim())
+// --- Parse summary CSV: columns "Learners", "Email", ..., "Present", ... ---
+function parseAttendanceSummaryCSV(csvText) {
+  const lines = csvText.split('\n').map(l => l.trim()).filter(l => l)
   if (!lines.length) return []
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''))
+
+  let headerIdx = lines.findIndex(l => l.split(',')[0].replace(/"/g, '').trim().toLowerCase() === 'learners')
+  if (headerIdx === -1) {
+    console.warn('[WARN] Could not find header row with "Learners" column')
+    return []
+  }
+
+  const headers = lines[headerIdx].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase())
+  const emailIdx   = headers.findIndex(h => h === 'email')
+  const presentIdx = headers.findIndex(h => h === 'present')
+
+  if (emailIdx === -1 || presentIdx === -1) {
+    console.warn('[WARN] Missing Email or Present column. Headers:', headers.join(', '))
+    return []
+  }
+
   const records = []
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(',').map(c => c.trim().replace(/"/g, ''))
-    const row = {}
-    headers.forEach((h, idx) => { row[h] = cols[idx] || '' })
-    records.push(row)
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.replace(/"/g, '').trim())
+    const email = cols[emailIdx]
+    const present = parseInt(cols[presentIdx]) || 0
+    if (!email || !email.includes('@')) continue
+    records.push({ email: email.toLowerCase(), present_count: present })
   }
   return records
-}
-
-// --- Determine session date from record ---
-function parseSessionDate(raw) {
-  if (!raw) return null
-  // Try common formats: YYYY-MM-DD, DD-MM-YYYY, MM/DD/YYYY
-  const d = new Date(raw)
-  if (!isNaN(d)) return d.toISOString().split('T')[0]
-  return null
 }
 
 async function main() {
@@ -66,7 +72,7 @@ async function main() {
   console.log(`[*] Syncing attendance ${startDate} --> ${endDate}`)
 
   // 1. Fetch attendance CSV from Edmingle
-  const csvUrl = `${BASE_URL}/report/csv?apikey=${API_KEY}&response_type=1&ORGID=${ORG_ID}&report_type=55&organization_id=${ORG_ID}&start_time=${startTs}&end_time=${endTs}&batch_id=${BATCH_ID}`
+  const csvUrl = `${BASE_URL}/report/csv?apikey=${API_KEY}&ORGID=${ORG_ID}&report_type=20&start=${startTs}&end=${endTs}&class_id=${CLASS_ID}`
   console.log('[*] Calling Edmingle report/csv...')
   const csvRes = await fetch(csvUrl, { headers: { apikey: API_KEY, ORGID: ORG_ID } })
   if (!csvRes.ok) {
@@ -74,8 +80,8 @@ async function main() {
     process.exit(1)
   }
   const csvText = await csvRes.text()
-  const rawRecords = parseAttendanceCSV(csvText)
-  console.log(`[OK] Edmingle returned ${rawRecords.length} attendance rows`)
+  const rawRecords = parseAttendanceSummaryCSV(csvText)
+  console.log(`[OK] Edmingle returned ${rawRecords.length} student summary rows`)
 
   if (!rawRecords.length) {
     console.log('[OK] Nothing to sync.')
@@ -87,9 +93,8 @@ async function main() {
   if (sErr) { console.error('[ERROR]', sErr.message); process.exit(1) }
 
   const emailToStudent = new Map(students.map(s => [s.email.toLowerCase(), s]))
-  const edmingleIdToStudent = new Map(students.filter(s => s.edmingle_id).map(s => [s.edmingle_id, s]))
 
-  // 3. If any students missing edmingle_id, try to populate via student roster API
+  // 3. If any students missing edmingle_id, try to populate via student roster API (for future use)
   const needsMapping = students.filter(s => !s.edmingle_id)
   if (needsMapping.length > 0) {
     console.log(`[*] Fetching Edmingle student roster to map ${needsMapping.length} IDs...`)
@@ -102,7 +107,6 @@ async function main() {
         const matched = emailToStudent.get(email)
         if (matched && !matched.edmingle_id && eid) {
           updates.push({ id: matched.id, edmingle_id: eid })
-          edmingleIdToStudent.set(eid, matched)
         }
       }
       if (updates.length) {
@@ -114,69 +118,25 @@ async function main() {
     }
   }
 
-  // 4. Upsert attendance_records
+  // 4. Upsert student_points directly from summary (present_count * 20 = attendance_pts)
   let upserted = 0
   let unmatched = 0
-  const toUpsert = []
 
   for (const rec of rawRecords) {
-    // Try matching by edmingle student id first, then email
-    const eid = rec['student id'] || rec['studentid'] || rec['student_id'] || ''
-    const email = (rec['email'] || rec['student email'] || '').toLowerCase()
-    const sessionDate = parseSessionDate(rec['session date'] || rec['date'] || rec['session_date'])
-    const sessionName = rec['session name'] || rec['session'] || rec['title'] || ''
-    const status = (rec['status'] || rec['attendance'] || '').toLowerCase()
-    const isPresent = status.includes('present') || status === 'yes' || status === '1' || status === 'true'
-
-    if (!sessionDate) continue
-
-    let student = edmingleIdToStudent.get(eid) || emailToStudent.get(email)
+    const student = emailToStudent.get(rec.email)
     if (!student) { unmatched++; continue }
-
-    toUpsert.push({
-      student_id: student.id,
-      edmingle_student_id: eid || null,
-      session_date: sessionDate,
-      session_name: sessionName,
-      is_present: isPresent,
-    })
-  }
-
-  const BATCH = 200
-  for (let i = 0; i < toUpsert.length; i += BATCH) {
-    const { error } = await db
-      .from('attendance_records')
-      .upsert(toUpsert.slice(i, i + BATCH), { onConflict: 'student_id,session_date' })
-    if (error) console.warn('[WARN] attendance upsert:', error.message)
-    else upserted += Math.min(BATCH, toUpsert.length - i)
-  }
-  console.log(`[OK] Upserted ${upserted} attendance records (${unmatched} unmatched)`)
-
-  // 5. Recalculate attendance_pts for all C7 students
-  console.log('[*] Recalculating attendance points...')
-  const { data: counts, error: cErr } = await db
-    .from('attendance_records')
-    .select('student_id, is_present')
-  if (cErr) { console.error('[ERROR]', cErr.message); process.exit(1) }
-
-  const ptsByStudent = new Map()
-  for (const r of counts) {
-    if (r.is_present) {
-      ptsByStudent.set(r.student_id, (ptsByStudent.get(r.student_id) || 0) + 20)
-    }
-  }
-
-  for (const [studentId, pts] of ptsByStudent) {
+    const pts = rec.present_count * 20
     const { error } = await db
       .from('student_points')
       .upsert(
-        { student_id: studentId, attendance_pts: pts, last_synced_at: new Date().toISOString() },
+        { student_id: student.id, attendance_pts: pts, last_synced_at: new Date().toISOString() },
         { onConflict: 'student_id' }
       )
     if (error) console.warn('[WARN]', error.message)
+    else upserted++
   }
 
-  console.log(`[OK] Updated attendance_pts for ${ptsByStudent.size} students`)
+  console.log(`[OK] Upserted ${upserted} attendance records (${unmatched} unmatched)`)
 }
 
 main().catch(e => { console.error('[ERROR]', e); process.exit(1) })

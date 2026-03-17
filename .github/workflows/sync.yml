@@ -34,24 +34,26 @@ jobs:
         if: ${{ github.event.inputs.mode != 'bulk' }}
         run: node scripts/sync-weekly.mjs
         env:
-          LEADERBOARD_SUPABASE_URL:     ${{ secrets.LEADERBOARD_SUPABASE_URL }}
+          LEADERBOARD_SUPABASE_URL:         ${{ secrets.LEADERBOARD_SUPABASE_URL }}
           LEADERBOARD_SUPABASE_SERVICE_KEY: ${{ secrets.LEADERBOARD_SUPABASE_SERVICE_KEY }}
-          UGC_SUPABASE_URL:             ${{ secrets.UGC_SUPABASE_URL }}
-          UGC_SUPABASE_SERVICE_KEY:     ${{ secrets.UGC_SUPABASE_SERVICE_KEY }}
-          EDMINGLE_BASE_URL:            ${{ secrets.EDMINGLE_BASE_URL }}
-          EDMINGLE_API_KEY:             ${{ secrets.EDMINGLE_API_KEY }}
-          EDMINGLE_ORG_ID:              ${{ secrets.EDMINGLE_ORG_ID }}
-          C7_BATCH_ID:                  ${{ secrets.C7_BATCH_ID }}
+          UGC_SUPABASE_URL:                 ${{ secrets.UGC_SUPABASE_URL }}
+          UGC_SUPABASE_SERVICE_KEY:         ${{ secrets.UGC_SUPABASE_SERVICE_KEY }}
+          EDMINGLE_BASE_URL:                ${{ secrets.EDMINGLE_BASE_URL }}
+          EDMINGLE_API_KEY:                 ${{ secrets.EDMINGLE_API_KEY }}
+          EDMINGLE_ORG_ID:                  ${{ secrets.EDMINGLE_ORG_ID }}
+          C7_BATCH_ID:                      ${{ secrets.C7_BATCH_ID }}
+          C7_CLASS_ID:                      ${{ secrets.C7_CLASS_ID }}
 
       - name: Run bulk historical import
         if: ${{ github.event.inputs.mode == 'bulk' }}
         run: node scripts/bulk-import.mjs
         env:
-          LEADERBOARD_SUPABASE_URL:     ${{ secrets.LEADERBOARD_SUPABASE_URL }}
+          LEADERBOARD_SUPABASE_URL:         ${{ secrets.LEADERBOARD_SUPABASE_URL }}
           LEADERBOARD_SUPABASE_SERVICE_KEY: ${{ secrets.LEADERBOARD_SUPABASE_SERVICE_KEY }}
-          UGC_SUPABASE_URL:             ${{ secrets.UGC_SUPABASE_URL }}
-          UGC_SUPABASE_SERVICE_KEY:     ${{ secrets.UGC_SUPABASE_SERVICE_KEY }}
-          EDMINGLE_BASE_URL:            ${{ secrets.EDMINGLE_BASE_URL }}
-          EDMINGLE_API_KEY:             ${{ secrets.EDMINGLE_API_KEY }}
-          EDMINGLE_ORG_ID:              ${{ secrets.EDMINGLE_ORG_ID }}
-          C7_BATCH_ID:                  ${{ secrets.C7_BATCH_ID }}
+          UGC_SUPABASE_URL:                 ${{ secrets.UGC_SUPABASE_URL }}
+          UGC_SUPABASE_SERVICE_KEY:         ${{ secrets.UGC_SUPABASE_SERVICE_KEY }}
+          EDMINGLE_BASE_URL:                ${{ secrets.EDMINGLE_BASE_URL }}
+          EDMINGLE_API_KEY:                 ${{ secrets.EDMINGLE_API_KEY }}
+          EDMINGLE_ORG_ID:                  ${{ secrets.EDMINGLE_ORG_ID }}
+          C7_BATCH_ID:                      ${{ secrets.C7_BATCH_ID }}
+          C7_CLASS_ID:                      ${{ secrets.C7_CLASS_ID }}

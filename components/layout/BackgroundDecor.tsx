@@ -88,7 +88,7 @@ export function BackgroundDecor() {
                 letterSpacing: '3px',
                 transform: 'rotate(-90deg)',
             }}>
-                COHORT 6
+                COHORT 7
             </div>
 
             <div style={{
