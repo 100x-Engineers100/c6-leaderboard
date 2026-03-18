@@ -5,7 +5,8 @@
       "Bash(cd \"C:/Users/visha/Downloads/Leaderboard\" && npx create-next-app@14 leaderboard-app --typescript --tailwind --app --no-src-dir --no-git --import-alias \"@/*\" --eslint 2>&1)",
       "Bash(cd \"C:/Users/visha/Downloads/Leaderboard\" && cp -r leaderboard-app/node_modules ./node_modules && rm -rf leaderboard-app && ls)",
       "Bash(find:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "WebSearch"
     ]
   }
 }

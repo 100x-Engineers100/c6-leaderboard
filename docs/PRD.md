@@ -5,6 +5,15 @@
 **Date:** 2026-03-10
 **Status:** Approved for development
 
+
+PROMPT -
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ hey read into this - @"docs/Backend plan.txt" and see that we have completed teh progress for the 2 metric that is attenadance and ugc, but i ahev this mettirc       
+  calculation doc @"docs/Leaderboard – Mentee Scoring System.txt" which has 5 others metric which is  Assignment Submission ,Weekly Consistency Bonus
+  Mid Capstone Project, Mini Hackathon,Final Capstone Project.  in all these i think we can automate the weekly consistency bonus, so that points will be added
+  automatically . now for rest 4 we have these report taht we can download from edmingle lms becasue our timeline is not fixed on when we will uplaod the assignment    
+  and evaluate it. so we can downlaod the reports fro other 4 like this, which have the sturcture as this for assignment @docs/Assignment_C5_m1.csv  
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ---
 
 ## 1. Problem Statement
@@ -151,3 +160,5 @@ Three data sources feed total points:
 2. Edminole API auth credentials
 3. Student photo source (Supabase storage or external?)
 4. Vision 2 definition
+
+

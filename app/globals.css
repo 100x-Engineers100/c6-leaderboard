@@ -68,6 +68,11 @@ body {
   50%       { opacity: 0.3; }
 }
 
+@keyframes spin-y {
+  from { transform: perspective(400px) rotateY(0deg); }
+  to   { transform: perspective(400px) rotateY(360deg); }
+}
+
 /* reusable frozen glass surface — ported from Community Events */
 .glass-surface {
   background: var(--glass-bg);
@@ -98,4 +103,34 @@ body {
 *:focus-visible {
   outline: 2px solid #F96846;
   outline-offset: 2px;
+}
+
+/* responsive rank table grid */
+.rank-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 44px 1fr 80px;
+}
+@media (min-width: 640px) {
+  .rank-grid {
+    grid-template-columns: 44px 1fr 80px 80px 80px 80px;
+  }
+}
+
+/* scale glow on mobile */
+@media (max-width: 639px) {
+  .orange-glow-bg::before {
+    width: 300px;
+    height: 200px;
+  }
+}
+
+/* hero grid pattern size */
+.hero-grid-bg {
+  background-size: 60px 60px;
+}
+@media (min-width: 640px) {
+  .hero-grid-bg {
+    background-size: 90px 90px;
+  }
 }

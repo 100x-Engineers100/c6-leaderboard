@@ -64,7 +64,8 @@ function parseAttendanceSummaryCSV(csvText) {
 
 async function main() {
   const now = Math.floor(Date.now() / 1000)
-  const startTs = parseInt(process.argv[2] || String(now - 14 * 86400))
+  const C7_START = Math.floor(new Date('2026-03-16T00:00:00Z').getTime() / 1000)
+  const startTs = parseInt(process.argv[2] || String(C7_START))
   const endTs   = parseInt(process.argv[3] || String(now))
 
   const startDate = new Date(startTs * 1000).toISOString().split('T')[0]

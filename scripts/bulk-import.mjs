@@ -19,23 +19,16 @@ async function main() {
   let cursor = new Date(C7_START)
   let week = 0
 
-  while (cursor < now) {
-    const start = toUnix(cursor)
-    const end   = Math.min(toUnix(new Date(cursor.getTime() + 7 * 86400 * 1000)), toUnix(now))
-    const startStr = new Date(start * 1000).toISOString().split('T')[0]
-    const endStr   = new Date(end   * 1000).toISOString().split('T')[0]
-
-    console.log(`\n[*] Week ${++week}: ${startStr} --> ${endStr}`)
-    try {
-      execSync(
-        `node ${resolve(__dir, 'sync-attendance.mjs')} ${start} ${end}`,
-        { stdio: 'inherit' }
-      )
-    } catch (e) {
-      console.error('[ERROR] Week', week, 'failed:', e.message)
-    }
-
-    cursor = new Date(cursor.getTime() + 7 * 86400 * 1000)
+  // Attendance summary is cumulative — one call from cohort start to now is correct
+  const start = toUnix(C7_START)
+  const end   = toUnix(now)
+  const startStr = C7_START.toISOString().split('T')[0]
+  const endStr   = now.toISOString().split('T')[0]
+  console.log(`\n[*] Attendance: ${startStr} --> ${endStr}`)
+  try {
+    execSync(`node ${resolve(__dir, 'sync-attendance.mjs')} ${start} ${end}`, { stdio: 'inherit' })
+  } catch (e) {
+    console.error('[ERROR] Attendance sync failed:', e.message)
   }
 
   // UGC sync once at the end

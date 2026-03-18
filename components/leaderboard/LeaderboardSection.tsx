@@ -39,7 +39,8 @@ export function LeaderboardSection({ students, loading }: Props) {
   return (
     <section
       ref={sectionRef}
-      style={{ position: 'relative', maxWidth: '80vw', margin: '0 auto', padding: '48px 16px 0' }}
+      className="max-w-[95vw] sm:max-w-[80vw]"
+      style={{ position: 'relative', margin: '0 auto', padding: 'clamp(24px, 4vw, 48px) clamp(12px, 2vw, 16px) 0' }}
     >
       {/* Entry glow */}
       <div
@@ -59,22 +60,20 @@ export function LeaderboardSection({ students, loading }: Props) {
       />
 
       {/* Section label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6">
         <span style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 14, fontWeight: 1500,
-          letterSpacing: '4px', textTransform: 'uppercase',
-          color: 'rgba(249,104,70,0.50)', whiteSpace: 'nowrap',
-        }}>
+          textTransform: 'uppercase',
+          color: 'rgba(249,104,70,0.50)',
+        }} className="text-[10px] sm:text-sm tracking-[2px] sm:tracking-[4px] font-bold whitespace-nowrap">
           Full Rankings
         </span>
-        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+        <div style={{ flex: 1, minWidth: 12, height: 1, background: 'rgba(255,255,255,0.05)' }} />
         <span style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 14, fontWeight: 1200,
-          letterSpacing: '3px', textTransform: 'uppercase',
-          color: 'rgba(144,137,137,0.77)', whiteSpace: 'nowrap',
-        }}>
+          textTransform: 'uppercase',
+          color: 'rgba(144,137,137,0.77)',
+        }} className="text-[10px] sm:text-sm tracking-[2px] sm:tracking-[3px] whitespace-nowrap">
           Cohort 7 · {count}
         </span>
       </div>

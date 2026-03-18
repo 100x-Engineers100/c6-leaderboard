@@ -2,7 +2,6 @@
 import { HeroSection } from '@/components/hero/HeroSection'
 import { R3FBackground } from '@/components/hero/R3FBackground'
 import { LeaderboardSection } from '@/components/leaderboard/LeaderboardSection'
-import { BackgroundDecor } from '@/components/layout/BackgroundDecor'
 import { useLenis } from '@/hooks/useLenis'
 import { ConfettiCannons } from '@/components/confetti/ConfettiCannons'
 import { useLeaderboard } from '@/hooks/useLeaderboard'
@@ -35,8 +34,6 @@ export default function Page() {
 
       {/* Stars and Decor */}
       <R3FBackground />
-      <BackgroundDecor />
-
       <ConfettiCannons />
 
       <HeroSection top3={top3} />

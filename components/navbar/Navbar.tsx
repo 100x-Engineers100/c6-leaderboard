@@ -7,7 +7,7 @@ export function Navbar() {
     >
       {/* Floating pill container — frozen glass */}
       <div
-        className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 rounded-2xl"
+        className="max-w-7xl mx-auto flex items-center justify-between px-3 py-2 sm:px-6 sm:py-3 rounded-2xl"
         style={{
           background: 'rgba(10, 10, 10, 0.60)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -30,7 +30,7 @@ export function Navbar() {
           }}
         />
 
-        <span className="font-sans text-xs tracking-[4px] uppercase text-white/45 relative">
+        <span className="font-sans text-[10px] sm:text-xs tracking-[2px] sm:tracking-[4px] uppercase text-white/45 relative">
           100xEngineers
         </span>
 

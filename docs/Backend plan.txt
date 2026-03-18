@@ -6,10 +6,17 @@ Last updated: 2026-03-17
 
 --------------------------------------------------------------------------------
 STATUS: V1 COMPLETE AND LIVE
+Last updated: 2026-03-17 (post-launch fixes)
 --------------------------------------------------------------------------------
 
 All 7 stages shipped. Live leaderboard with real C7 student data, UGC post
 scoring, Tally avatars, and weekly GitHub Actions sync.
+
+Post-launch fixes applied (2026-03-17):
+  - Attendance sync rewritten to use summary CSV format (report_type=20)
+  - Duplicate student record (kaathrohanr typo) deleted, UGC pts merged
+  - Project title updated: "C6 Leaderboard" -> "Leaderboard C7"
+  - Attendance overwrite bug fixed (see PITFALL #9 below)
 
 
 --------------------------------------------------------------------------------
@@ -50,8 +57,13 @@ Edmingle API_KEY  : [in .env.local only — never commit]
 C7 batch_id       : 194294
 C7 batch_name     : 100xEngineers_Applied Gen AI Cohort 7
 C7 start date     : 2026-03-16
-Attendance endpoint: GET /report/csv?apikey=&response_type=1&ORGID=
-                     &report_type=55&organization_id=&start_time=&end_time=
+Attendance endpoint: GET /report/csv?apikey=&ORGID=&report_type=20
+                     &start=<unix>&end=<unix>&class_id=446933
+                     NOTE: report_type=55 returns 500. report_type=20 is correct.
+                     Returns summary CSV: Learners, Email, ..., Present, Absent, %
+                     Also contains per-session date cols (e.g. "13 Mar") but we
+                     use the summary Present column only.
+C7 class_id       : 446933  (required — batch_id does NOT work for this endpoint)
 
 Leaderboard Supabase : qosndqcdupypfkfgduif (project ref)
 UGC Tracker Supabase : zwtxxevribrvrwtgcfqj (project ref)
@@ -231,11 +243,17 @@ STAGES COMPLETED
     - CSV fallback implemented (docs/User_rows_ugc.csv) for when UGC DB
       permissions fail
 
-  [DONE] Stage 3 — Attendance Sync
-    - sync-attendance.mjs working
-    - Returns 0 rows currently (expected — cohort started March 16,
-      no Edmingle sessions recorded yet)
-    - Will auto-populate after first Friday/Saturday session
+  [DONE] Stage 3 — Attendance Sync (revised 2026-03-17)
+    - report_type=55 was dead (500). Confirmed report_type=20 is the correct endpoint.
+    - Parser rewritten: was wide-format date-column parser, now reads summary
+      CSV columns (Email + Present). attendance_pts = present_count * 20.
+    - attendance_records table no longer written to — points go directly to
+      student_points.attendance_pts.
+    - Default start time changed from (now - 14 days) to cohort start 2026-03-16
+      so weekly sync always queries cumulative totals (critical for correctness).
+    - bulk-import.mjs simplified: no longer loops week-by-week for attendance
+      (one call covers all history since summary is cumulative).
+    - Verified: 270 rows parsed, 124 upserted on first real run.
 
   [DONE] Stage 4 — UGC Sync
     - sync-ugc.mjs working
@@ -311,6 +329,28 @@ COMMON PITFALLS (ENCOUNTERED AND FIXED)
      Plan estimated ~327 students. Actual: 129 unique students.
      Cause: the plan was based on a rough estimate, not the actual CSV.
 
+  9. ATTENDANCE OVERWRITE BUG (rolling window)
+     sync-attendance.mjs default start was (now - 14 days). The summary parser
+     OVERWRITES attendance_pts with present_count * 20 each run. So after week 3,
+     weekly sync would query last 14 days, get Present=2 (weeks 2-3), overwrite
+     with 40 — erasing week 1's attendance entirely.
+     Fix: default start changed to C7_START (2026-03-16). Edmingle summary returns
+     cumulative Present count for the full queried range, so always querying from
+     cohort start gives correct all-time total. Overwriting is safe.
+     bulk-import.mjs also fixed: was calling sync week-by-week (each call
+     overwrote with just that week's count). Now calls once: cohort start → now.
+
+  10. DUPLICATE STUDENT RECORD (email typo)
+      students table had "Rohan Kamath" twice:
+        kaathrohanr@gmail.com  (typo — "kaath" instead of "kamath")
+        kamathrohanr@gmail.com (correct)
+      The typo entry had 60 UGC pts and 3 ugc_posts_cache rows from the UGC sync
+      matching it by email. The correct entry had 40 attendance_pts.
+      Fix: merged ugc_post_pts to correct record, reassigned ugc_posts_cache rows,
+      deleted the typo student. Final state: kamathrohanr = 40 attendance + 60 UGC = 100 pts.
+      Root cause: the Launchpad CSV had a typo email in one of two Rohan Kamath rows.
+      Prevention: before seeding, validate CSV emails against known-good sources.
+
 
 --------------------------------------------------------------------------------
 V2 PLAN — MANUAL SCORING + ADMIN WORKFLOW
@@ -347,24 +387,15 @@ V2 PLAN — MANUAL SCORING + ADMIN WORKFLOW
 V2 PLAN — ATTENDANCE AUTO-SYNC VERIFICATION
 --------------------------------------------------------------------------------
 
-  Current state: sync-attendance.mjs is implemented but returns 0 rows
-  because Edmingle has no session data yet (cohort day 1).
-
-  Action needed after first session (Friday March 20 or Saturday March 21):
-    1. Run manually: node scripts/sync-attendance.mjs
-    2. Check attendance_records table in Supabase for new rows
-    3. Verify student_points.attendance_pts updated correctly
-
-  If Edmingle CSV format differs from what the parser expects:
-    - Download a sample CSV manually from Edmingle dashboard
-    - Check column headers match what parseAttendanceCSV() expects:
-      student id, email, session name, session date, status
-    - Update the column name mapping in sync-attendance.mjs if needed
-
-  Edmingle student ID mapping:
-    On first successful sync, sync-attendance.mjs calls
-    /organization/students to get student_Id per email and stores it
-    in students.edmingle_id for future fast matching.
+  RESOLVED (2026-03-17):
+    - Confirmed working with real session data (Mar 13-14 sessions).
+    - 270 Edmingle students parsed, 124 matched to leaderboard DB, 124 upserted.
+    - 146 unmatched = Edmingle students not in leaderboard DB (different cohort
+      registrations or students not in the C7 Launchpad CSV).
+    - report_type=20, class_id=446933 is the correct endpoint.
+    - Parser reads summary CSV (Email + Present columns).
+    - attendance_pts written directly to student_points (no attendance_records).
+    - Weekly GitHub Actions cron will handle ongoing automation correctly.
 
 
 --------------------------------------------------------------------------------

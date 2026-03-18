@@ -11,10 +11,13 @@ type Props = {
   // Individual Controls
   medalSize?: number
   medalMarginTop?: number | string
+  medalContainerHeight?: number
   nameSize?: number
   nameLineHeight?: number | string
   pointsSize?: number
   moveUpwards?: number | string
+  innerPadding?: number | string
+  gapSize?: number
 }
 
 const RANK_COLORS = {
@@ -41,7 +44,8 @@ export function PixelTV({
   nameSize = 26,
   nameLineHeight = 0.8,
   pointsSize = 12,
-  moveUpwards = -10
+  moveUpwards = -10,
+  innerPadding = '40px 40px',
 }: Props) {
   const color = RANK_COLORS[rank]
 
@@ -51,10 +55,10 @@ export function PixelTV({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 32,
+      gap: Math.round(frameSize * 0.07),
       width: '100%',
       height: '100%',
-      padding: '40px 40px',
+      padding: typeof innerPadding === 'number' ? innerPadding : innerPadding,
     }}>
 
       {/* Frame + avatar — GSAP animates this div via frameRef */}
@@ -158,7 +162,7 @@ export function PixelTV({
 
       {/* RANK MEDAL PNG HANDLING — Standardized container for perfect name alignment */}
       <div style={{
-        height: 140, // Consistent height for all ranks ensures names align
+        height: Math.round(frameSize * 0.45),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
