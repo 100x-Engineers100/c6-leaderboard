@@ -11,4 +11,11 @@ export type Student = {
   assignment_pts:        number
   hackathon_pts:         number
   capstone_pts:          number
+  // individual event scores
+  assignment_1_pts?:   number
+  assignment_2_pts?:   number
+  assignment_3_pts?:   number
+  assignment_4_pts?:   number
+  midcapstone_pts?:    number
+  final_capstone_pts?: number
 }

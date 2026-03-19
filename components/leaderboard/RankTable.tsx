@@ -8,7 +8,7 @@ import { Pagination } from './Pagination'
 
 type Props = {
   students: Student[]
-  loading:  boolean
+  loading: boolean
 }
 
 export function RankTable({ students, loading }: Props) {
@@ -203,22 +203,22 @@ export function RankTable({ students, loading }: Props) {
 
       {/* Column headers */}
       <div className="rank-grid" style={{
-        padding: '0 16px 10px',
-        marginBottom: 4,
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-        fontFamily: 'JetBrains Mono, monospace',
-        fontSize: 12,
-        fontWeight: 2000,
-        letterSpacing: '1px',
+        padding: '0 clamp(8px, 3vw, 16px) clamp(8px, 2vw, 14px)',
+        marginBottom: 8,
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        fontFamily: 'Space Grotesk, sans-serif',
+        fontSize: 'clamp(9px, 1.5vw, 12px)',
+        fontWeight: 600,
+        letterSpacing: 'clamp(0.8px, 0.3vw, 1.5px)',
         textTransform: 'uppercase',
-        color: 'var(--color-text-muted)',
+        color: 'rgba(255,255,255,0.5)',
       }}>
-        <span>#</span>
-        <span>Builder</span>
+        <div style={{ color: 'rgba(255,255,255,0.7)', textAlign: 'center' }}>#</div>
+        <span style={{ color: 'rgba(255,255,255,0.7)' }}>Builder</span>
         <span className="hidden sm:block" style={{ textAlign: 'right' }}>Attendance</span>
         <span className="hidden sm:block" style={{ textAlign: 'right' }}>Projects</span>
         <span className="hidden sm:block" style={{ textAlign: 'right' }}>#0to100x</span>
-        <span style={{ textAlign: 'right' }}>Total XP</span>
+        <span style={{ textAlign: 'right', color: 'rgba(249,104,70,0.9)' }}>Total XP</span>
       </div>
 
       {/* Loading state */}

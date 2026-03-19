@@ -59,10 +59,10 @@ export function Pagination({ currentPage, totalPages, totalStudents, onPageChang
             key={page}
             onClick={() => onPageChange(page as number)}
             style={{
-              width: 32,
-              height: 32,
+              width: 'clamp(26px, 7vw, 32px)',
+              height: 'clamp(26px, 7vw, 32px)',
               borderRadius: 4,
-              fontSize: 12,
+              fontSize: 'clamp(10px, 2.5vw, 12px)',
               fontFamily: 'JetBrains Mono, monospace',
               fontWeight: 600,
               cursor: 'pointer',

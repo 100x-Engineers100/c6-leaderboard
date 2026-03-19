@@ -108,8 +108,8 @@ body {
 /* responsive rank table grid */
 .rank-grid {
   display: grid;
-  gap: 12px;
-  grid-template-columns: 44px 1fr 80px;
+  gap: clamp(6px, 2vw, 12px);
+  grid-template-columns: clamp(32px, 9vw, 44px) 1fr clamp(60px, 18vw, 80px);
 }
 @media (min-width: 640px) {
   .rank-grid {

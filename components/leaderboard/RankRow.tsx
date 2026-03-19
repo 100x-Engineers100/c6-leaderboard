@@ -17,6 +17,8 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
     attendance_pts, ugc_post_pts, capstone_pts,
     assignment_pts, hackathon_pts, consistency_bonus_pts,
     total_points,
+    assignment_1_pts = 0, assignment_2_pts = 0, assignment_3_pts = 0, assignment_4_pts = 0,
+    midcapstone_pts = 0, final_capstone_pts = 0,
   } = student
 
   const sessions = Math.round(attendance_pts / 20)
@@ -28,12 +30,13 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
     <div>
       {/* Main row */}
       <div
-        className="rank-grid items-center px-4 py-3 mb-[2px] transition-colors duration-100"
+        className="rank-grid items-center mb-[2px] transition-colors duration-100"
         style={{
+          padding: 'clamp(6px, 1.8vw, 12px) clamp(8px, 3vw, 16px)',
           background: open
             ? (isTop3 ? 'rgba(249,104,70,0.12)' : 'rgba(255,255,255,0.07)')
             : highlighted ? 'rgba(249,104,70,0.14)'
-            : (isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)'),
+              : (isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)'),
           borderRadius: open ? '4px 4px 0 0' : 4,
           border: '1px solid',
           borderColor: highlighted ? 'rgba(249,104,70,0.55)' : (isTop3 ? 'rgba(249,104,70,0.20)' : 'rgba(255,255,255,0.09)'),
@@ -58,11 +61,11 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         {/* Rank */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {isTop3 ? (
-            <img src={`/rank${rank}.png`} alt={`Rank ${rank}`} style={{ width: 'clamp(40px, 5vw, 56px)', height: 'clamp(40px, 5vw, 56px)', objectFit: 'contain' }} />
+            <img src={`/rank${rank}.png`} alt={`Rank ${rank}`} style={{ width: 'clamp(26px, 7vw, 48px)', height: 'clamp(26px, 7vw, 48px)', objectFit: 'contain' }} />
           ) : (
             <span style={{
               fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 13, fontWeight: 700,
+              fontSize: 'clamp(10px, 2.8vw, 13px)', fontWeight: 700,
               color: 'rgba(255,255,255,0.50)', letterSpacing: '0.5px',
             }}>
               {String(rank).padStart(2, '0')}
@@ -72,7 +75,7 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
 
         {/* Name */}
         <span style={{
-          fontSize: 16, fontWeight: 500,
+          fontSize: 'clamp(11px, 3.5vw, 16px)', fontWeight: 500,
           color: isTop3 ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.82)',
           letterSpacing: '0.2px',
         }}>
@@ -82,7 +85,7 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         {/* Attendance */}
         <span className="hidden sm:block" style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 14, fontWeight: 600,
+          fontSize: 'clamp(11px, 2.5vw, 14px)', fontWeight: 600,
           textAlign: 'right',
         }}>
           {pts(attendance_pts)}
@@ -91,7 +94,7 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         {/* Projects (capstone + hackathon) */}
         <span className="hidden sm:block" style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 14, fontWeight: 600,
+          fontSize: 'clamp(11px, 2.5vw, 14px)', fontWeight: 600,
           textAlign: 'right',
         }}>
           {pts(capstone_pts + (hackathon_pts ?? 0))}
@@ -100,7 +103,7 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         {/* #0to100x */}
         <span className="hidden sm:block" style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 14, fontWeight: 600,
+          fontSize: 'clamp(11px, 2.5vw, 14px)', fontWeight: 600,
           textAlign: 'right',
         }}>
           {pts(ugc_post_pts)}
@@ -109,7 +112,7 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         {/* Total XP + chevron */}
         <span style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: 13, fontWeight: 700,
+          fontSize: 'clamp(10px, 2.8vw, 13px)', fontWeight: 700,
           fontVariantNumeric: 'tabular-nums',
           color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.65)',
           letterSpacing: '0.5px',
@@ -118,13 +121,24 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         }}>
           {total_points.toLocaleString()}
           <span style={{
-            fontSize: 10,
-            color: accentColor,
-            transition: 'transform 0.2s ease',
-            display: 'inline-block',
-            transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 'clamp(16px, 4vw, 20px)',
+            height: 'clamp(16px, 4vw, 20px)',
+            borderRadius: '50%',
+            background: open
+              ? (isTop3 ? 'rgba(249,104,70,0.15)' : 'rgba(255,255,255,0.08)')
+              : (isTop3 ? 'rgba(249,104,70,0.05)' : 'transparent'),
+            border: `1px solid ${open ? (isTop3 ? 'rgba(249,104,70,0.4)' : 'rgba(255,255,255,0.2)') : (isTop3 ? 'rgba(249,104,70,0.15)' : 'rgba(255,255,255,0.05)')}`,
+            boxShadow: open ? `0 0 10px ${isTop3 ? 'rgba(249,104,70,0.2)' : 'rgba(255,255,255,0.05)'}` : 'none',
+            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform: open ? 'rotate(45deg) scale(1.1)' : 'rotate(0deg) scale(1)',
+            flexShrink: 0,
           }}>
-            {'>'}
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 4v16M4 12h16" stroke={isTop3 ? '#FF6B35' : 'rgba(255,255,255,0.8)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </span>
         </span>
       </div>
@@ -132,8 +146,8 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
       {/* Accordion breakdown */}
       <div style={{
         overflow: 'hidden',
-        maxHeight: open ? 320 : 0,
-        transition: 'max-height 0.25s ease',
+        maxHeight: open ? 600 : 0,
+        transition: 'max-height 0.28s ease',
         marginBottom: open ? 2 : 0,
       }}>
         <div style={{
@@ -143,41 +157,96 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
           borderColor: isTop3 ? 'rgba(249,104,70,0.20)' : 'rgba(255,255,255,0.09)',
           borderLeft: isTop3 ? '2px solid rgba(249,104,70,0.60)' : '2px solid transparent',
           borderRadius: '0 0 4px 4px',
-          padding: '12px 16px',
+          padding: 'clamp(8px, 2vw, 12px) clamp(10px, 3vw, 16px)',
           fontFamily: 'JetBrains Mono, monospace',
         }}>
           <div style={{
-            fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase',
-            color: accentColor, marginBottom: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 12,
           }}>
-            XP Breakdown
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span style={{
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: 'clamp(10px, 2vw, 12px)',
+              letterSpacing: '2.5px',
+              textTransform: 'uppercase',
+              color: accentColor,
+              fontWeight: 600,
+            }}>
+              XP Breakdown
+            </span>
+            <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${isTop3 ? 'rgba(249,104,70,0.2)' : 'rgba(255,255,255,0.05)'} 0%, transparent 100%)` }} />
           </div>
 
-          {/* breakdown rows */}
-          {[
-            { label: 'Attendance', val: attendance_pts, note: sessions > 0 ? `${sessions} session${sessions !== 1 ? 's' : ''} x 20 XP` : null },
-            { label: 'Assignments', val: assignment_pts, note: null },
-            { label: 'Mini Hackathon', val: hackathon_pts, note: null },
-            { label: 'Capstone', val: capstone_pts, note: null },
-            { label: '#0to100x', val: ugc_post_pts, note: posts > 0 ? `${posts} post${posts !== 1 ? 's' : ''} x 20 XP` : null },
-            { label: 'Consistency', val: consistency_bonus_pts, note: consistency_bonus_pts > 0 ? 'bonus' : null },
-          ].map(({ label, val, note }) => (
-            <div key={label} style={{
-              display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
-              padding: '3px 0',
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
-            }}>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', minWidth: 130 }}>{label}</span>
-              <span style={{ fontSize: 11, color: val > 0 ? 'rgba(255,255,255,0.70)' : 'rgba(255,255,255,0.18)', marginLeft: 8 }}>
-                {val > 0 ? `${val} XP` : '—'}
-              </span>
-              {note && (
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginLeft: 8, textAlign: 'right', flex: 1 }}>
-                  {note}
+          {/* Aligned 3-col row helper */}
+          {(() => {
+            // fluid columns: label | value | note (note pushed to far right)
+            const cols = 'clamp(90px, 28vw, 150px) clamp(48px, 13vw, 70px) 1fr'
+            const labelSz = 'clamp(9px, 2.4vw, 11px)'
+            const valueSz = 'clamp(9px, 2.4vw, 11px)'
+            const noteSz = 'clamp(8px, 2vw, 10px)'
+
+            const Row = ({ label, val, note, indent }: { label: string; val: number; note?: string | null; indent?: boolean }) => (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: cols,
+                alignItems: 'baseline',
+                padding: 'clamp(2px, 0.5vw, 4px) 0',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+              }}>
+                <span style={{ fontSize: labelSz, color: indent ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.50)', paddingLeft: indent ? 'clamp(8px, 2vw, 14px)' : 0 }}>
+                  {indent ? '- ' : ''}{label}
                 </span>
-              )}
-            </div>
-          ))}
+                <span style={{ fontSize: valueSz, color: val > 0 ? 'rgba(255,255,255,0.70)' : 'rgba(255,255,255,0.18)', textAlign: 'right' }}>
+                  {val > 0 ? `${val} XP` : '—'}
+                </span>
+                <span style={{ fontSize: noteSz, color: 'rgba(255,255,255,0.28)', textAlign: 'right' }}>
+                  {note ?? ''}
+                </span>
+              </div>
+            )
+
+            const GroupHeader = ({ label, total }: { label: string; total: number }) => (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: cols,
+                alignItems: 'baseline',
+                padding: 'clamp(4px, 1vw, 6px) 0 clamp(2px, 0.5vw, 3px)',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+              }}>
+                <span style={{ fontSize: labelSz, color: 'rgba(255,255,255,0.50)', fontWeight: 700 }}>{label}</span>
+                <span style={{ fontSize: valueSz, color: total > 0 ? 'rgba(255,255,255,0.70)' : 'rgba(255,255,255,0.18)', textAlign: 'right' }}>
+                  {total > 0 ? `${total} XP` : '—'}
+                </span>
+                <span />
+              </div>
+            )
+
+            return (
+              <>
+                <Row label="Attendance" val={attendance_pts} note={sessions > 0 ? `${sessions} session${sessions !== 1 ? 's' : ''} x 20 XP` : null} />
+
+                <GroupHeader label="Assignments" total={assignment_pts} />
+                {assignment_1_pts > 0 && <Row label="Assignment 1" val={assignment_1_pts} indent />}
+                {assignment_2_pts > 0 && <Row label="Assignment 2" val={assignment_2_pts} indent />}
+                {assignment_3_pts > 0 && <Row label="Assignment 3" val={assignment_3_pts} indent />}
+                {assignment_4_pts > 0 && <Row label="Assignment 4" val={assignment_4_pts} indent />}
+
+                <Row label="Mini Hackathon" val={hackathon_pts} />
+
+                <GroupHeader label="Capstone" total={capstone_pts} />
+                {midcapstone_pts > 0 && <Row label="Mid Capstone" val={midcapstone_pts} indent />}
+                {final_capstone_pts > 0 && <Row label="Final Capstone" val={final_capstone_pts} indent />}
+
+                <Row label="#0to100x" val={ugc_post_pts} note={posts > 0 ? `${posts} post${posts !== 1 ? 's' : ''} x 20 XP` : null} />
+                <Row label="Consistency" val={consistency_bonus_pts} note={consistency_bonus_pts > 0 ? 'bonus' : null} />
+              </>
+            )
+          })()}
 
           {/* total */}
           <div style={{
@@ -185,8 +254,8 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
             marginTop: 8, paddingTop: 6,
             borderTop: `1px solid ${isTop3 ? 'rgba(249,104,70,0.30)' : 'rgba(255,255,255,0.10)'}`,
           }}>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', letterSpacing: '1px', textTransform: 'uppercase' }}>Total</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.80)' }}>
+            <span style={{ fontSize: 'clamp(9px, 2.4vw, 11px)', color: 'rgba(255,255,255,0.50)', letterSpacing: '1px', textTransform: 'uppercase' }}>Total</span>
+            <span style={{ fontSize: 'clamp(10px, 2.6vw, 12px)', fontWeight: 700, color: isTop3 ? 'var(--color-primary)' : 'rgba(255,255,255,0.80)' }}>
               {total_points.toLocaleString()} XP
             </span>
           </div>

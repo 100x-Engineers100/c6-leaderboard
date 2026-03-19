@@ -1,4 +1,6 @@
 -- Run this in Supabase SQL editor for the Leaderboard project
+-- Migration: Add score_uploads and score_upload_batches tables
+-- Run the block at the bottom of this file after the original tables
 
 -- Students roster
 CREATE TABLE IF NOT EXISTS students (
@@ -52,4 +54,27 @@ CREATE TABLE IF NOT EXISTS ugc_posts_cache (
   posted_at    TIMESTAMP,
   platform     VARCHAR DEFAULT 'LINKEDIN',
   synced_at    TIMESTAMP DEFAULT now()
+);
+
+-- Manual score uploads: assignments, capstone, hackathon
+-- event_type values: assignment_1..4, midcapstone, hackathon_1, final_capstone
+CREATE TABLE IF NOT EXISTS score_uploads (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id  UUID REFERENCES students(id),
+  event_type  VARCHAR NOT NULL,
+  points      INT NOT NULL DEFAULT 0,
+  raw_score   INT,
+  created_at  TIMESTAMP DEFAULT now(),
+  updated_at  TIMESTAMP DEFAULT now(),
+  UNIQUE(student_id, event_type)
+);
+
+-- Audit log for each CSV upload batch
+CREATE TABLE IF NOT EXISTS score_upload_batches (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_type  VARCHAR NOT NULL,
+  row_count   INT,
+  upserted    INT,
+  unmatched   INT,
+  uploaded_at TIMESTAMP DEFAULT now()
 );
