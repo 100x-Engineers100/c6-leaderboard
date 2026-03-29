@@ -78,3 +78,16 @@ CREATE TABLE IF NOT EXISTS score_upload_batches (
   unmatched   INT,
   uploaded_at TIMESTAMP DEFAULT now()
 );
+
+-- Weekly attendance log: one row per student per week, Fri/Sat sessions only.
+-- attendance_pts in student_points = SUM(pts_awarded) across all rows here.
+-- Idempotent: re-running the same week safely overwrites (attendance is final).
+CREATE TABLE IF NOT EXISTS weekly_attendance_log (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id       UUID REFERENCES students(id) ON DELETE CASCADE,
+  week_start       DATE NOT NULL,       -- Sunday that opened the week (YYYY-MM-DD)
+  weekend_sessions INT NOT NULL DEFAULT 0,  -- 0, 1, or 2 (Fri + Sat)
+  pts_awarded      INT NOT NULL DEFAULT 0,  -- weekend_sessions * 20
+  synced_at        TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(student_id, week_start)
+);
