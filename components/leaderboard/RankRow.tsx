@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import type { Student } from '@/lib/types'
 
-type Props = { student: Student; isTop3?: boolean; highlighted?: boolean }
+type Props = { student: Student; isTop3?: boolean; highlighted?: boolean; forceOpen?: boolean }
 
 function pts(n: number) {
   return n > 0
@@ -10,8 +10,9 @@ function pts(n: number) {
     : <span style={{ color: 'rgba(255,255,255,0.18)' }}>—</span>
 }
 
-export function RankRow({ student, isTop3 = false, highlighted = false }: Props) {
+export function RankRow({ student, isTop3 = false, highlighted = false, forceOpen = false }: Props) {
   const [open, setOpen] = useState(false)
+  const effectiveOpen = open || forceOpen
   const {
     rank, name,
     attendance_pts, ugc_post_pts, capstone_pts,
@@ -33,27 +34,27 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
         className="rank-grid items-center mb-[2px] transition-colors duration-100"
         style={{
           padding: 'clamp(6px, 1.8vw, 12px) clamp(8px, 3vw, 16px)',
-          background: open
+          background: effectiveOpen
             ? (isTop3 ? 'rgba(249,104,70,0.12)' : 'rgba(255,255,255,0.07)')
             : highlighted ? 'rgba(249,104,70,0.14)'
               : (isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)'),
-          borderRadius: open ? '4px 4px 0 0' : 4,
+          borderRadius: effectiveOpen ? '4px 4px 0 0' : 4,
           border: '1px solid',
           borderColor: highlighted ? 'rgba(249,104,70,0.55)' : (isTop3 ? 'rgba(249,104,70,0.20)' : 'rgba(255,255,255,0.09)'),
           borderLeft: highlighted ? '2px solid rgba(249,104,70,0.90)' : (isTop3 ? '2px solid rgba(249,104,70,0.60)' : '2px solid transparent'),
           transition: 'background 0.4s ease, border-color 0.4s ease',
-          borderBottom: open ? '1px solid transparent' : undefined,
+          borderBottom: effectiveOpen ? '1px solid transparent' : undefined,
           cursor: 'pointer',
           userSelect: 'none',
         }}
         onClick={() => setOpen(v => !v)}
         onMouseEnter={e => {
-          if (open) return
+          if (effectiveOpen) return
           const el = e.currentTarget as HTMLElement
           el.style.background = isTop3 ? 'rgba(249,104,70,0.10)' : 'rgba(255,255,255,0.07)'
         }}
         onMouseLeave={e => {
-          if (open) return
+          if (effectiveOpen) return
           const el = e.currentTarget as HTMLElement
           el.style.background = isTop3 ? 'rgba(249,104,70,0.06)' : 'rgba(255,255,255,0.04)'
         }}
@@ -127,13 +128,13 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
             width: 'clamp(16px, 4vw, 20px)',
             height: 'clamp(16px, 4vw, 20px)',
             borderRadius: '50%',
-            background: open
+            background: effectiveOpen
               ? (isTop3 ? 'rgba(249,104,70,0.15)' : 'rgba(255,255,255,0.08)')
               : (isTop3 ? 'rgba(249,104,70,0.05)' : 'transparent'),
-            border: `1px solid ${open ? (isTop3 ? 'rgba(249,104,70,0.4)' : 'rgba(255,255,255,0.2)') : (isTop3 ? 'rgba(249,104,70,0.15)' : 'rgba(255,255,255,0.05)')}`,
-            boxShadow: open ? `0 0 10px ${isTop3 ? 'rgba(249,104,70,0.2)' : 'rgba(255,255,255,0.05)'}` : 'none',
+            border: `1px solid ${effectiveOpen ? (isTop3 ? 'rgba(249,104,70,0.4)' : 'rgba(255,255,255,0.2)') : (isTop3 ? 'rgba(249,104,70,0.15)' : 'rgba(255,255,255,0.05)')}`,
+            boxShadow: effectiveOpen ? `0 0 10px ${isTop3 ? 'rgba(249,104,70,0.2)' : 'rgba(255,255,255,0.05)'}` : 'none',
             transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            transform: open ? 'rotate(45deg) scale(1.1)' : 'rotate(0deg) scale(1)',
+            transform: effectiveOpen ? 'rotate(45deg) scale(1.1)' : 'rotate(0deg) scale(1)',
             flexShrink: 0,
           }}>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -146,7 +147,7 @@ export function RankRow({ student, isTop3 = false, highlighted = false }: Props)
       {/* Accordion breakdown */}
       <div style={{
         overflow: 'hidden',
-        maxHeight: open ? 600 : 0,
+        maxHeight: effectiveOpen ? 600 : 0,
         transition: 'max-height 0.28s ease',
         marginBottom: open ? 2 : 0,
       }}>

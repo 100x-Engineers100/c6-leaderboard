@@ -18,7 +18,6 @@ export function RankTable({ students, loading }: Props) {
   const [highlightId, setHighlightId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const totalPages = Math.ceil(students.length / PAGE_SIZE)
   const pageStudents = students.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
@@ -57,18 +56,29 @@ export function RankTable({ students, loading }: Props) {
     )
   }, [currentPage])
 
+  // Scroll to highlighted row after page + GSAP settle
+  useEffect(() => {
+    if (!highlightId) return
+    const id = highlightId
+    const t = setTimeout(() => {
+      const el = document.querySelector<HTMLElement>(`[data-student-id="${id}"]`)
+      if (!el) return
+      const top = el.getBoundingClientRect().top + window.scrollY - 80
+      window.scrollTo({ top, behavior: 'smooth' })
+    }, 320)
+    return () => clearTimeout(t)
+  }, [highlightId])
+
   // Reset to page 1 when new data loads
-  useEffect(() => { setCurrentPage(1) }, [students])
+  useEffect(() => { setCurrentPage(1); setHighlightId(null) }, [students])
 
   const jumpTo = (student: Student) => {
     const idx = students.findIndex(s => s.id === student.id)
     const page = Math.floor(idx / PAGE_SIZE) + 1
-    setCurrentPage(page)
     setQuery(student.name)
     setDropOpen(false)
-    if (highlightTimer.current) clearTimeout(highlightTimer.current)
     setHighlightId(student.id)
-    highlightTimer.current = setTimeout(() => setHighlightId(null), 2500)
+    setCurrentPage(page)
   }
 
   return (
@@ -145,7 +155,11 @@ export function RankTable({ students, loading }: Props) {
             {matches.map((s, i) => (
               <div
                 key={s.id}
+                role="menuitem"
+                tabIndex={0}
+                aria-label={`${s.name} rank ${s.rank}`}
                 onMouseDown={() => jumpTo(s)}
+                onClick={() => jumpTo(s)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -237,11 +251,17 @@ export function RankTable({ students, loading }: Props) {
         <>
           <div ref={listRef} key={currentPage}>
             {pageStudents.map(student => (
-              <div key={student.id} data-row="">
+              <div
+                key={student.id}
+                data-row=""
+                data-student-id={student.id}
+                onClick={() => { if (student.id === highlightId) setHighlightId(null) }}
+              >
                 <RankRow
                   student={student}
                   isTop3={student.rank <= 3}
                   highlighted={student.id === highlightId}
+                  forceOpen={student.id === highlightId}
                 />
               </div>
             ))}
