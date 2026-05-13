@@ -13,6 +13,7 @@ import { ugcDb } from './ugc-db.mjs'
 const C7_COHORT_ID = '4c8458b3-a700-42b2-9cc1-f52b3045e2c3'
 const __dir = dirname(fileURLToPath(import.meta.url))
 const ROOT  = resolve(__dir, '..')
+const PAGE_SIZE = 1000
 
 // Load UGC users from DB, fall back to exported CSV
 async function loadUgcUsers() {
@@ -42,6 +43,25 @@ async function loadUgcUsers() {
   }
   console.log(`[OK] ${users.length} C7 UGC users from CSV fallback`)
   return users
+}
+
+// FIX BUG 1: paginate posts fetch — Supabase default cap is 1000 rows
+async function fetchAllPosts(ugcIds) {
+  let all = []
+  let from = 0
+  while (true) {
+    const { data: page, error } = await ugcDb
+      .from('Post')
+      .select('id, userId, url, platform, numLikes, numComments, postedAt')
+      .in('userId', ugcIds)
+      .order('id')
+      .range(from, from + PAGE_SIZE - 1)
+    if (error) return { data: null, error }
+    all = all.concat(page)
+    if (page.length < PAGE_SIZE) break
+    from += PAGE_SIZE
+  }
+  return { data: all, error: null }
 }
 
 async function main() {
@@ -76,7 +96,6 @@ async function main() {
   const ugcIdToLb = new Map()
   for (const s of students) {
     if (s.ugc_user_id) ugcIdToLb.set(s.ugc_user_id, s)
-    // also try matching via email if ugc_user_id not set
     const ugcId = ugcEmailMap.get(s.email.toLowerCase())
     if (ugcId) ugcIdToLb.set(ugcId, s)
   }
@@ -84,27 +103,34 @@ async function main() {
   const c7UgcIds = ugcUsers.map(u => u.id)
   if (!c7UgcIds.length) { console.log('[WARN] No C7 UGC users found.'); return }
 
-  // 2. Fetch posts
-  console.log('[*] Fetching UGC posts...')
-  const { data: posts, error: pErr } = await ugcDb
-    .from('Post')
-    .select('id, userId, url, platform, numLikes, numComments, postedAt')
-    .in('userId', c7UgcIds)
-  if (pErr) { console.error('[ERROR] Posts fetch:', pErr.message, '\n[INFO] Fix UGC DB permissions — run the GRANT SQL in UGC Supabase SQL editor, then retry.'); process.exit(1) }
+  // 2. Fetch ALL posts with pagination (FIX BUG 1)
+  console.log('[*] Fetching UGC posts (paginated)...')
+  const { data: posts, error: pErr } = await fetchAllPosts(c7UgcIds)
+  if (pErr) {
+    console.error('[ERROR] Posts fetch:', pErr.message)
+    console.error('[INFO] Fix UGC DB permissions — run the GRANT SQL in UGC Supabase SQL editor, then retry.')
+    process.exit(1)
+  }
   console.log(`[OK] ${posts.length} posts found`)
 
-  // 3. Upsert ugc_posts_cache
-  const postRows = posts.map(p => {
+  // 3. Upsert ugc_posts_cache (also benefits from pagination fix — now has all posts)
+  const postRows = []
+  let unmappedPosts = 0
+  for (const p of posts) {
     const lb = ugcIdToLb.get(p.userId)
-    return {
-      student_id: lb?.id ?? null,
-      post_url:   p.url,
-      num_likes:  p.numLikes   ?? 0,
+    if (!lb) { unmappedPosts++; continue }
+    postRows.push({
+      student_id:   lb.id,
+      post_url:     p.url,
+      num_likes:    p.numLikes    ?? 0,
       num_comments: p.numComments ?? 0,
-      posted_at:  p.postedAt ?? null,
-      platform:   p.platform ?? 'LINKEDIN',
-    }
-  }).filter(r => r.student_id)
+      posted_at:    p.postedAt   ?? null,
+      platform:     p.platform   ?? 'LINKEDIN',
+    })
+  }
+  if (unmappedPosts > 0) {
+    console.warn(`[WARN] ${unmappedPosts} posts could not be mapped to a leaderboard student — check ugc_user_id links`)
+  }
 
   const BATCH = 200
   let cached = 0
@@ -123,7 +149,31 @@ async function main() {
     .from('Streak')
     .select('userId, weeklyStreak')
     .in('userId', c7UgcIds)
-  if (stErr) { console.warn('[WARN] Streaks fetch:', stErr.message) }
+  if (stErr) {
+    console.warn('[WARN] Streaks fetch failed:', stErr.message)
+    console.warn('[WARN] consistency_bonus_pts will be preserved from last sync — not updated this run')
+  }
+
+  // FIX BUG 2: fetch existing points WITH error handling — abort if it fails
+  // Without this, the "never decrease" guard collapses and zeroes everyone's pts
+  const studentIds = students.map(s => s.id)
+  console.log('[*] Fetching existing points...')
+  const { data: existingPts, error: existingErr } = await db
+    .from('student_points')
+    .select('student_id, ugc_post_pts, consistency_bonus_pts')
+    .in('student_id', studentIds)
+  if (existingErr) {
+    console.error('[ERROR] Cannot fetch existing points — aborting to prevent data loss:', existingErr.message)
+    process.exit(1)
+  }
+
+  // FIX BUG 3 + 4: track existing consistency_bonus_pts per student
+  const existingPtsMap = new Map(
+    (existingPts || []).map(r => [r.student_id, {
+      ugc_post_pts:          r.ugc_post_pts          || 0,
+      consistency_bonus_pts: r.consistency_bonus_pts || 0,
+    }])
+  )
 
   // 5. Calculate per-student points
   const postCountByLbId = new Map()
@@ -135,14 +185,29 @@ async function main() {
 
   const pointUpdates = []
   for (const s of students) {
-    const ugcId = s.ugc_user_id || ugcEmailMap.get(s.email.toLowerCase())
+    const ugcId    = s.ugc_user_id || ugcEmailMap.get(s.email.toLowerCase())
     const postCount = postCountByLbId.get(s.id) || 0
-    const weeklyStreak = ugcId ? (streakByUgcId.get(ugcId) || 0) : 0
+    const existing  = existingPtsMap.get(s.id) || { ugc_post_pts: 0, consistency_bonus_pts: 0 }
+
+    const calculatedPts = postCount * 20
+
+    // FIX BUG 3: never decrease ugc_post_pts (policy: posts are permanent)
+    const newUgcPts = Math.max(calculatedPts, existing.ugc_post_pts)
+
+    // FIX BUG 4: if streak fetch failed, preserve existing bonus — don't wipe on API error
+    let newConsistencyPts
+    if (stErr) {
+      newConsistencyPts = existing.consistency_bonus_pts
+    } else {
+      const weeklyStreak = ugcId ? (streakByUgcId.get(ugcId) || 0) : 0
+      newConsistencyPts = weeklyStreak * 10
+    }
+
     pointUpdates.push({
-      student_id:           s.id,
-      ugc_post_pts:         postCount * 20,
-      consistency_bonus_pts: weeklyStreak * 10,
-      last_synced_at:       new Date().toISOString(),
+      student_id:            s.id,
+      ugc_post_pts:          newUgcPts,
+      consistency_bonus_pts: newConsistencyPts,
+      last_synced_at:        new Date().toISOString(),
     })
   }
 
@@ -155,13 +220,14 @@ async function main() {
   console.log(`[OK] Updated UGC points for ${pointUpdates.length} students`)
 
   // Summary
-  const totalPosts = postRows.length
-  const withPosts = postCountByLbId.size
-  const withStreak = [...streakByUgcId.values()].filter(v => v > 0).length
+  const withPosts  = postCountByLbId.size
+  const withStreak = stErr ? 'N/A (fetch failed)' : [...streakByUgcId.values()].filter(v => v > 0).length
   console.log(`\n[OK] UGC sync complete`)
-  console.log(`     Total posts      : ${totalPosts}`)
-  console.log(`     Students w/ posts: ${withPosts}`)
-  console.log(`     Students w/ streak: ${withStreak}`)
+  console.log(`     Total posts fetched : ${posts.length}`)
+  console.log(`     Posts mapped to LB  : ${postRows.length}`)
+  console.log(`     Posts unmapped      : ${unmappedPosts}`)
+  console.log(`     Students w/ posts   : ${withPosts}`)
+  console.log(`     Students w/ streak  : ${withStreak}`)
 }
 
 main().catch(e => { console.error('[ERROR]', e); process.exit(1) })
